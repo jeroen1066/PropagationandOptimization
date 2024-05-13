@@ -100,6 +100,7 @@ propagator = propagation_setup.propagator.cowell
 integrator_index = 1
 state_histories = []
 differences = []
+interpolation_errors = []
 
 for current_time_step in time_steps:
     current_integrator_settings = Util.get_integrator_settings(0,
@@ -140,6 +141,21 @@ for current_time_step in time_steps:
     
     differences.append(error)
 
+    interpolation_error = {}
+
+    interpolator_settings = interpolators.lagrange_interpolation( 8 )
+    interpolation = interpolators.create_one_dimensional_vector_interpolator( states, interpolator_settings )
+
+    for time in times_comparison:
+        if time in times:
+            continue
+        interpolated_state = interpolation.interpolate(time)
+        interpolation_error[time] = np.linalg.norm(interpolated_state - comparisonstates[time])
+
+    interpolation_errors.append(interpolation_error)
+
+    
+
     dynamics_simulator = numerical_simulation.create_dynamics_simulator(
                     bodies, propagator_settings )
     
@@ -174,4 +190,14 @@ plt.ylabel('Maximum error [m]')
 plt.grid()
 plt.yscale('log')
 plt.xscale('log')
+plt.show()
+
+plt.figure()
+for i in range( len(interpolation_errors)):
+    plt.plot(list(interpolation_errors[i].keys()), list(interpolation_errors[i].values()), label=str(time_steps[i]*2))
+plt.xlabel('Time [s]')
+plt.ylabel('Interpolation error [m]')
+plt.grid()
+plt.yscale('log')
+plt.legend()
 plt.show()
