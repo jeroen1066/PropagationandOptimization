@@ -98,15 +98,13 @@ propagator_settings = Util.get_propagator_settings(shape_parameters,
 propagator = propagation_setup.propagator.cowell
 
 integrator_index = 1
+#setup empty lists to store results for plotting
 state_histories = []
 differences = []
 interpolation_errors = []
 
 for current_time_step in time_steps:
-    current_integrator_settings = Util.get_integrator_settings(0,
-                                                                            integrator_index,
-                                                                            current_time_step,
-                                                                            simulation_start_epoch)
+    #set up integrator settings using rk5 and the current time step
 
     coefficient_set = propagation_setup.integrator.CoefficientSets.rkf_56
     integrator = propagation_setup.integrator
@@ -118,6 +116,7 @@ for current_time_step in time_steps:
 
     propagator_settings.integrator_settings = integrator_settings
 
+
     returnlist = Util.generate_benchmarks_rk5(
         current_time_step,
         simulation_start_epoch,
@@ -126,21 +125,26 @@ for current_time_step in time_steps:
         False
     )
 
+    #comparing the higher timestep to the lower timestep
     times_comparison = returnlist[0].keys()
     comparison_end =  list(times_comparison)[-1]
 
     states = returnlist[1]
     comparisonstates = returnlist[0]
     
+    #get the differences at all timesteps of the higher timestep in a dictionary
     times = states.keys()
     error = {}
     for time in times:
         if time > comparison_end:
+            #This occurs if the lower timestep ended inbetween 2 higher timesteps, and then the last timestep should be skipped.
             continue
         error[time] = np.linalg.norm(states[time] - comparisonstates[time])
     
+
     differences.append(error)
 
+    #interpolating the states based on the higher timestep, and then comparing the inbetween steps to estimate the interpolation errors
     interpolation_error = {}
 
     interpolator_settings = interpolators.lagrange_interpolation( 8 )
@@ -153,14 +157,6 @@ for current_time_step in time_steps:
         interpolation_error[time] = np.linalg.norm(interpolated_state - comparisonstates[time])
 
     interpolation_errors.append(interpolation_error)
-
-    
-
-    dynamics_simulator = numerical_simulation.create_dynamics_simulator(
-                    bodies, propagator_settings )
-    
-    state_history = dynamics_simulator.state_history
-    state_histories.append(state_history) 
     
 
 ###########################################################################
