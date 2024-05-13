@@ -553,6 +553,98 @@ def generate_benchmarks(benchmark_step_size,
 
     return return_list
 
+def generate_benchmarks_rk5(benchmark_step_size,
+                        simulation_start_epoch: float,
+                        bodies: tudatpy.kernel.numerical_simulation.environment.SystemOfBodies,
+                        benchmark_propagator_settings: tudatpy.kernel.numerical_simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings,
+                        are_dependent_variables_present: bool,
+                        output_path: str = None):
+    """
+    Function to generate to accurate benchmarks.
+
+    This function runs two propagations with two different integrator settings that serve as benchmarks for
+    the nominal runs. The state and dependent variable history for both benchmarks are returned and, if desired, 
+    they are also written to files (to the directory ./SimulationOutput/benchmarks/) in the following way:
+    * benchmark_1_states.dat, benchmark_2_states.dat
+        The numerically propagated states from the two benchmarks.
+    * benchmark_1_dependent_variables.dat, benchmark_2_dependent_variables.dat
+        The dependent variables from the two benchmarks.
+
+    Parameters
+    ----------
+    benchmark_step_size : float
+        Time step of the benchmark that will be used. Two benchmark simulations will be run, both fixed-step 8th order
+         (first benchmark uses benchmark_step_size, second benchmark uses 2.0 * benchmark_step_size)
+    bodies : tudatpy.kernel.numerical_simulation.environment.SystemOfBodies,
+        System of bodies present in the simulation.
+    benchmark_propagator_settings
+        Propagator settings object which is used to run the benchmark propagations.
+    are_dependent_variables_present : bool
+        If there are dependent variables to save.
+    output_path : str (default: None)
+        If and where to save the benchmark results (if None, results are NOT written).
+
+    Returns
+    -------
+    return_list : list
+        List of state and dependent variable history in this order: state_1, state_2, dependent_1_ dependent_2.
+    """
+
+    ### CREATION OF THE TWO BENCHMARKS ###
+    # Define benchmarks' step sizes
+    first_benchmark_step_size = benchmark_step_size  # s
+    second_benchmark_step_size = 2.0 * first_benchmark_step_size
+
+    # Create integrator settings for the first benchmark, using a fixed step size RKDP8(7) integrator
+    # (the minimum and maximum step sizes are set equal, while both tolerances are set to inf)
+    benchmark_propagator_settings.integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(
+        first_benchmark_step_size,
+        propagation_setup.integrator.CoefficientSets.rkf_56)
+    benchmark_propagator_settings.print_settings.print_dependent_variable_indices = True
+
+    first_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+        bodies,
+        benchmark_propagator_settings )
+
+    # Create integrator settings for the second benchmark in the same way
+    benchmark_propagator_settings.integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(
+        second_benchmark_step_size,
+        propagation_setup.integrator.CoefficientSets.rkdp_87)
+    benchmark_propagator_settings.print_settings.print_dependent_variable_indices = False
+
+    second_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+        bodies,
+        benchmark_propagator_settings )
+
+
+    ### WRITE BENCHMARK RESULTS TO FILE ###
+    # Retrieve state history
+    first_benchmark_states = first_dynamics_simulator.state_history
+    second_benchmark_states = second_dynamics_simulator.state_history
+    # Write results to files
+    if output_path is not None:
+        save2txt(first_benchmark_states, 'benchmark_1_states.dat', output_path)
+        save2txt(second_benchmark_states, 'benchmark_2_states.dat', output_path)
+    # Add items to be returned
+    return_list = [first_benchmark_states,
+                   second_benchmark_states]
+
+    ### DO THE SAME FOR DEPENDENT VARIABLES ###
+    if are_dependent_variables_present:
+        # Retrieve dependent variable history
+        first_benchmark_dependent_variable = first_dynamics_simulator.dependent_variable_history
+        second_benchmark_dependent_variable = second_dynamics_simulator.dependent_variable_history
+        # Write results to file
+        if output_path is not None:
+            save2txt(first_benchmark_dependent_variable, 'benchmark_1_dependent_variables.dat',  output_path)
+            save2txt(second_benchmark_dependent_variable,  'benchmark_2_dependent_variables.dat',  output_path)
+        # Add items to be returned
+        return_list.append(first_benchmark_dependent_variable)
+        return_list.append(second_benchmark_dependent_variable)
+
+    return return_list
+
+
 
 def compare_benchmarks(first_benchmark: dict,
                        second_benchmark: dict,
