@@ -89,13 +89,16 @@ dependent_variables_to_save = Util.get_dependent_variable_save_settings()
 # Check whether there is any
 are_dependent_variables_to_save = False if not dependent_variables_to_save else True
 
+propagator = propagation_setup.propagator.cowell
+
 propagator_settings = Util.get_propagator_settings(shape_parameters,
                                                                  bodies,
                                                                  simulation_start_epoch,
                                                                  termination_settings,
-                                                                 dependent_variables_to_save )
+                                                                 dependent_variables_to_save,
+                                                                 propagator  )
 
-propagator = propagation_setup.propagator.cowell
+
 
 integrator_index = 1
 #setup empty lists to store results for plotting
