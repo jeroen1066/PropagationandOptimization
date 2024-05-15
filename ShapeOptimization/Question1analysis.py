@@ -111,7 +111,7 @@ for current_time_step in time_steps:
 
     coefficient_set = propagation_setup.integrator.CoefficientSets.rkf_56
     integrator = propagation_setup.integrator
-    integrator_settings = integrator.runge_kutta_fixed_step_size(
+    integrator_settings = integrator.runge_kutta_fixed_step(
             current_time_step,
             coefficient_set,
             integrator.OrderToIntegrate.lower

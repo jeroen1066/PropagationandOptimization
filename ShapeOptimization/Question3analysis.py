@@ -32,9 +32,9 @@ integrators = [propagation_setup.integrator.CoefficientSets.rkf_45,
                 propagation_setup.integrator.CoefficientSets.rkf_1210
                 ]
 
-timesteps = [2,4,8,16,32,64]
+timesteps = [1,2,4,8,16,32,64]
 
-tolerances = [1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10]
+tolerances = [1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10,1e-11,1e-12]
 
 spice_interface.load_standard_kernels()
 # NOTE TO STUDENTS: INPUT YOUR PARAMETER SET HERE, FROM THE INPUT FILES
@@ -152,17 +152,21 @@ benchmark_interpolator = interpolators.create_one_dimensional_vector_interpolato
 
 
 
-errors_fixed_steps = []
-settings_fixed_steps = []
-errors_variable_steps = []
-settings_variable_steps = []
+fixed_step_integrators_error = []
+fixed_step_integrators_evaluations = []
+variable_step_integrators_error = []
+variable_step_integrators_evaluations = []
+
+
+variable_step_tests = []
+variable_step_tests_names = []
 
 for integrator_index in range(4):
     fixed_step_errors = []
     fixed_step_evaluations = []
     for timestep in timesteps:
         settingsdescription = [integrators[integrator_index], timestep]
-        settings_fixed_steps.append(settingsdescription)
+        #settings_fixed_steps.append(settingsdescription)
 
         integrator_settings = integrator.runge_kutta_fixed_step(
         timestep,
@@ -174,32 +178,44 @@ for integrator_index in range(4):
         dynamics_simulator = numerical_simulation.create_dynamics_simulator(
             bodies,
             propagator_settings )
+        if not dynamics_simulator.integration_completed_successfully:
+            continue
         
         state_history = dynamics_simulator.state_history
 
         errors = []
         lastepoch = list(state_history.keys())[-1]
+        lastbenchmarkepoch = list(benchmark_state_history.keys())[-1]
+        if lastepoch > lastbenchmarkepoch+30:
+            continue
         for epoch in state_history.keys():
-            if epoch > lastepoch - 10*benchmark_step_size:
+            if epoch > lastbenchmarkepoch - 10*benchmark_step_size:
                 continue
             interpolated_state = benchmark_interpolator.interpolate(epoch)
             errors.append(np.linalg.norm(state_history[epoch] - interpolated_state))
         maxerror = max(errors)
         fixed_step_errors.append(maxerror)
-        func_evals = list(dynamics_simulator.cumulative_number_of_function_evaluations)
-        fixed_step_evaluations.append(func_evals[-1])
+        func_evals = dynamics_simulator.cumulative_number_of_function_evaluations
+        fixed_step_evaluations.append(func_evals[lastepoch])
+        print('timestep:',timestep,'evaluations:',func_evals[lastepoch])
+
+    fixed_step_integrators_error.append(fixed_step_errors)
+    fixed_step_integrators_evaluations.append(fixed_step_evaluations)
 
 
     variable_step_errors = []
     variable_step_evaluations = []
+    lowest_error = np.inf
 
     for tolerance in tolerances:
         settingsdescription = [integrators[integrator_index], tolerance]
-        settings_variable_steps.append(settingsdescription)
+        #settings_variable_steps.append(settingsdescription)
 
         step_size_control_settings = propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance(
             tolerance,
-            tolerance
+            tolerance,
+            minimum_factor_increase = 0.01,
+            maximum_factor_increase = 100
         )
 
         step_size_validation_settings = propagation_setup.integrator.step_size_validation(
@@ -218,17 +234,75 @@ for integrator_index in range(4):
         dynamics_simulator = numerical_simulation.create_dynamics_simulator(
             bodies,
             propagator_settings )
+        if not dynamics_simulator.integration_completed_successfully:
+            continue
         
         state_history = dynamics_simulator.state_history
 
         errors = []
         lastepoch = list(state_history.keys())[-1]
+        lastbenchmarkepoch = list(benchmark_state_history.keys())[-1]
+        if lastepoch > lastbenchmarkepoch+30:
+            continue
         for epoch in state_history.keys():
-            if epoch > lastepoch - 10*benchmark_step_size:
+            if epoch > lastbenchmarkepoch - 10:
                 continue
             interpolated_state = benchmark_interpolator.interpolate(epoch)
             errors.append(np.linalg.norm(state_history[epoch] - interpolated_state))
         maxerror = max(errors)
         variable_step_errors.append(maxerror)
-        func_evals = list(dynamics_simulator.cumulative_number_of_function_evaluations)
-        variable_step_evaluations.append(func_evals[-1])
+        func_evals = dynamics_simulator.cumulative_number_of_function_evaluations
+        variable_step_evaluations.append(func_evals[lastepoch])
+        print('tolerance:',tolerance,'evaluations:',func_evals[lastepoch])
+
+        if maxerror < lowest_error:
+            lowest_error = maxerror
+            beststatehistory = state_history
+            bestsettings = settingsdescription
+
+    variable_step_tests.append(beststatehistory)
+    name = 'integrator: ' + str(bestsettings[0]) + ', tolerance: ' + str(bestsettings[1])
+    variable_step_tests_names.append(name)
+
+    variable_step_integrators_error.append(variable_step_errors)
+    variable_step_integrators_evaluations.append(variable_step_evaluations)
+
+###########################################################################
+# PLOTTING ###############################################################
+###########################################################################
+
+fixed_step_integrator_names = ['RK4', 'RK5', 'RK7', 'RK10']
+variable_step_integrator_names = ['RKF45', 'RKF56', 'RKF78', 'RKF1012']
+
+#plot error against number of function evaluations
+for i in range(len(fixed_step_integrators_error)):
+    plt.plot(fixed_step_integrators_evaluations[i], fixed_step_integrators_error[i], label = fixed_step_integrator_names[i], linestyle = '-',marker = 'o')
+    plt.plot(variable_step_integrators_evaluations[i], variable_step_integrators_error[i], label = variable_step_integrator_names[i], linestyle = '--', marker = 'x')
+plt.yscale('log')
+plt.xscale('log')
+plt.xlabel('Number of function evaluations')
+plt.ylabel('Error[m]')
+plt.legend()
+plt.grid()
+plt.show()
+
+
+#look at variable timestep errors
+for i in range(len(variable_step_tests)):
+    state_history = variable_step_tests[i]
+    errors = []
+    epochs = []
+    lastepoch = list(state_history.keys())[-1]
+    for epoch in state_history.keys():
+        if epoch > lastbenchmarkepoch - 10:
+            continue
+        interpolated_state = benchmark_interpolator.interpolate(epoch)
+        errors.append(np.linalg.norm(state_history[epoch] - interpolated_state))
+        epochs.append(epoch)
+    plt.plot(epochs, errors, label=variable_step_tests_names[i], linestyle = '--', marker = 'o')
+plt.yscale('log')
+plt.xlabel('Time [s]')
+plt.ylabel('Error[m]')
+plt.legend()
+plt.grid()
+plt.show()

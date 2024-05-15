@@ -115,7 +115,7 @@ current_integrator_settings = Util.get_integrator_settings(0,
 
 coefficient_set = propagation_setup.integrator.CoefficientSets.rkf_56
 integrator = propagation_setup.integrator
-integrator_settings = integrator.runge_kutta_fixed_step_size(
+integrator_settings = integrator.runge_kutta_fixed_step(
         benchmark_step_size,
         coefficient_set,
         integrator.OrderToIntegrate.lower
@@ -188,7 +188,7 @@ for propagator in available_propagators:
     
     coefficient_set = propagation_setup.integrator.CoefficientSets.rkf_56
     integrator = propagation_setup.integrator
-    integrator_settings = integrator.runge_kutta_fixed_step_size(
+    integrator_settings = integrator.runge_kutta_fixed_step(
             regular_step_size,
             coefficient_set,
             integrator.OrderToIntegrate.lower
