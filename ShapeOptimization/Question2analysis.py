@@ -153,13 +153,13 @@ available_propagators = [propagation_setup.propagator.cowell,
 available_propagators_names = ['cowell',
                                'encke',
                                  'gauss_keplerian',
-                                    'gauss_modified_equinoctial',
-                                    'unified_state_model_quaternions',
-                                    'unified_state_model_modified_rodrigues_parameters',
-                                    'unified_state_model_exponential_map']
+                                    'gauss equinoctial',
+                                    'USM-7',
+                                    'USM-6',
+                                    'USM-EM']
 
 cowell_variable_names = ['x', 'y', 'z', 'vx', 'vy', 'vz']
-encke_variable_names = ['a', 'e', 'i', 'RAAN', 'AOP', 'TA']
+encke_variable_names = ['x', 'y', 'z', 'vx', 'vy', 'vz']
 gauss_keplerian_variable_names = ['a', 'e', 'i', 'RAAN', 'AOP', 'TA']
 gauss_modified_equinoctial_variable_names = ['semiParameter', 'h1', 'h2', 'k1', 'k2', 'trueLongitude']
 unified_state_model_quaternions_variable_names = ['x', 'y', 'z', 'q1', 'q2', 'q3', 'q4']
