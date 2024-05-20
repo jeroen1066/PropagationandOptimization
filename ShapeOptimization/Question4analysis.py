@@ -151,4 +151,105 @@ benchmark_interpolator = interpolators.create_one_dimensional_vector_interpolato
 # REGULAR SIMULATION ######################################################
 ###########################################################################
 
+regular_step_size = 8.
+regular_integrator_coefs = propagation_setup.integrator.CoefficientSets.rkf_56
+regular_integrator = propagation_setup.integrator.runge_kutta_fixed_step(
+    regular_step_size,
+    regular_integrator_coefs
+)
+
+
+
+# set parameters for time at which initial data is extracted from spice
+initial_time = 12345
+# set parameters for defining the rotation between frames
+original_frame = "J2000"
+target_frame = "IAU_Earth_Simplified"
+target_frame_spice = "IAU_Earth"
+# create rotation model settings and assign to body settings of "Earth"
+simple_from_spice = environment_setup.rotation_model.simple_from_spice(
+original_frame, target_frame, target_frame_spice, initial_time)
+
+# define parameters describing the rotation between frames
+original_frame = "J2000"
+target_frame = "IAU_Earth"
+# create rotation model settings and assign to body settings of "Earth"
+spice_direct = environment_setup.rotation_model.spice(
+original_frame, target_frame)
+
+precession_nutation_theory = environment_setup.rotation_model.IAUConventions.iau_2006
+original_frame = "J2000"
+# create rotation model settings and assign to body settings of "Earth"
+high_accuracy = environment_setup.rotation_model.gcrs_to_itrs(
+precession_nutation_theory, original_frame)
+
+rotation_models = [simple_from_spice, spice_direct, high_accuracy]
+
+# define parameters of an invariant exponential atmosphere model
+density_at_zero_altitude = 1.225
+density_scale_height = 7.2E3
+constant_temperature = 290
+# create atmosphere settings and add to body settings of "Earth"
+exponential = environment_setup.atmosphere.exponential(
+     density_scale_height, density_at_zero_altitude)
+
+exponential_predefined = environment_setup.atmosphere.exponential_predefined("Earth")
+us76 = environment_setup.atmosphere.us76()
+
+nrlmsise00 = environment_setup.atmosphere.nrlmsise00()  
+
+atmosphere_models = [exponential, exponential_predefined, us76, nrlmsise00]
+
+state_histories_rotation = []
+
+for rotation_model in rotation_models:
+    body_settings.get("Earth").rotation_model_settings = rotation_model
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+
+    propagator_settings = Util.get_propagator_settings_benchmark(shape_parameters,
+                                                                 bodies,
+                                                                 simulation_start_epoch,
+                                                                termination_settings,
+                                                                dependent_variables_to_save)
+
+
+
+    propagator_settings.integrator_settings = regular_integrator
+
+    regular_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+        bodies,
+        propagator_settings )
+    
+    regular_state_history = regular_dynamics_simulator.state_history
+
+    state_histories_rotation.append(regular_state_history)
+
+chosen_rotation_model_index = 2
+
+body_settings.get("Earth").rotation_model_settings = rotation_models[chosen_rotation_model_index]
+
+state_histories_atmosphere = []
+
+#test out the different atmosphere models
+for atmospheric_model in atmosphere_models:
+    body_settings.get("Earth").atmosphere_settings = atmospheric_model
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+
+    propagator_settings = Util.get_propagator_settings_benchmark(shape_parameters,
+                                                                 bodies,
+                                                                 simulation_start_epoch,
+                                                                termination_settings,
+                                                                dependent_variables_to_save)
+
+    propagator_settings.integrator_settings = regular_integrator
+
+    regular_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+        bodies,
+        propagator_settings )
+
+    regular_state_history = regular_dynamics_simulator.state_history
+
+    state_histories_atmosphere.append(regular_state_history)
+
+chosen_atmosphere_model_index = 3
 
