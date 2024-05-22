@@ -147,6 +147,8 @@ benchmark_interpolator = interpolators.create_one_dimensional_vector_interpolato
     interpolator_settings
 )
 
+end_benchmark = list(benchmark_state_history.keys())[-1]
+
 ###########################################################################
 # REGULAR SIMULATION ######################################################
 ###########################################################################
@@ -158,13 +160,14 @@ regular_integrator = propagation_setup.integrator.runge_kutta_fixed_step(
     regular_integrator_coefs
 )
 
+perturbing_bodies = ['Moon', 'Sun', 'Jupiter']
 
 
 # set parameters for time at which initial data is extracted from spice
 initial_time = 12345
 # set parameters for defining the rotation between frames
 original_frame = "J2000"
-target_frame = "IAU_Earth_Simplified"
+target_frame = "IAU_Earth"
 target_frame_spice = "IAU_Earth"
 # create rotation model settings and assign to body settings of "Earth"
 simple_from_spice = environment_setup.rotation_model.simple_from_spice(
@@ -183,7 +186,7 @@ original_frame = "J2000"
 high_accuracy = environment_setup.rotation_model.gcrs_to_itrs(
 precession_nutation_theory, original_frame)
 
-rotation_models = [simple_from_spice, spice_direct, high_accuracy]
+rotation_models = [simple_from_spice, spice_direct]
 
 # define parameters of an invariant exponential atmosphere model
 density_at_zero_altitude = 1.225
@@ -200,11 +203,14 @@ nrlmsise00 = environment_setup.atmosphere.nrlmsise00()
 
 atmosphere_models = [exponential, exponential_predefined, us76, nrlmsise00]
 
-state_histories_rotation = []
+state_errors_rotation = []
 
 for rotation_model in rotation_models:
     body_settings.get("Earth").rotation_model_settings = rotation_model
     bodies = environment_setup.create_system_of_bodies(body_settings)
+    Util.add_capsule_to_body_system(bodies,
+                                shape_parameters,
+                                capsule_density)
 
     propagator_settings = Util.get_propagator_settings_benchmark(shape_parameters,
                                                                  bodies,
@@ -222,18 +228,28 @@ for rotation_model in rotation_models:
     
     regular_state_history = regular_dynamics_simulator.state_history
 
-    state_histories_rotation.append(regular_state_history)
+    errors = {}
 
-chosen_rotation_model_index = 2
+    for epoch in regular_state_history.keys():
+        if epoch > end_benchmark:
+            continue
+        errors[epoch] = np.linalg.norm(regular_state_history[epoch] - benchmark_interpolator.interpolate(epoch))
+
+    state_errors_rotation.append(errors)
+
+chosen_rotation_model_index = 1
 
 body_settings.get("Earth").rotation_model_settings = rotation_models[chosen_rotation_model_index]
 
-state_histories_atmosphere = []
+state_errors_atmosphere = []
 
 #test out the different atmosphere models
 for atmospheric_model in atmosphere_models:
     body_settings.get("Earth").atmosphere_settings = atmospheric_model
     bodies = environment_setup.create_system_of_bodies(body_settings)
+    Util.add_capsule_to_body_system(bodies,
+                                shape_parameters,
+                                capsule_density)
 
     propagator_settings = Util.get_propagator_settings_benchmark(shape_parameters,
                                                                  bodies,
@@ -249,7 +265,126 @@ for atmospheric_model in atmosphere_models:
 
     regular_state_history = regular_dynamics_simulator.state_history
 
-    state_histories_atmosphere.append(regular_state_history)
+    errors = {}
+
+    for epoch in regular_state_history.keys():
+        if epoch > end_benchmark:
+            continue
+        errors[epoch] = np.linalg.norm(regular_state_history[epoch] - benchmark_interpolator.interpolate(epoch))
+
+    state_errors_atmosphere.append(errors)
 
 chosen_atmosphere_model_index = 3
 
+# Define bodies that are propagated and their central bodies of propagation
+bodies_to_propagate = ['Capsule']
+central_bodies = ['Earth']
+
+# Define accelerations acting on capsule
+acceleration_settings_on_vehicle = {
+    'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
+                propagation_setup.acceleration.aerodynamic()],
+    'Moon': [propagation_setup.acceleration.point_mass_gravity()],
+    'Sun': [propagation_setup.acceleration.point_mass_gravity()],
+    'Jupiter': [propagation_setup.acceleration.point_mass_gravity()]
+}
+# Create acceleration models.
+
+perturbing_errors = []
+for perturbing_body in perturbing_bodies:
+    current_acceleration_settings = {
+        'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
+                    propagation_setup.acceleration.aerodynamic()]
+    }
+    current_perturbing_bodies =[]
+    for perturbing_body_inner in perturbing_bodies:
+        if perturbing_body_inner != perturbing_body:
+            current_acceleration_settings[perturbing_body_inner] = [propagation_setup.acceleration.point_mass_gravity()]
+            current_perturbing_bodies.append(perturbing_body_inner)
+
+    print('for the analysis of perturbing body',perturbing_body, 'the other perturbing bodies are:')
+    print(current_perturbing_bodies)
+
+    print(current_acceleration_settings)
+
+    acceleration_settings = {'Capsule': current_acceleration_settings}
+    acceleration_models = propagation_setup.create_acceleration_models(
+    bodies,
+    acceleration_settings,
+    bodies_to_propagate,
+    central_bodies)
+
+    new_angles = np.array([shape_parameters[5], 0.0, 0.0])
+    new_angle_function = lambda time : new_angles
+    bodies.get_body('Capsule').rotation_model.reset_aerodynamic_angle_function( new_angle_function )
+
+
+
+
+    # Retrieve initial state
+    initial_state = Util.get_initial_state(simulation_start_epoch,bodies)
+
+    # Create propagation settings for the translational dynamics. NOTE: these are not yet 'valid', as no
+    # integrator settings are defined yet
+    current_propagator = propagation_setup.propagator.cowell
+    propagator_settings = propagation_setup.propagator.translational(central_bodies,
+                                                                     acceleration_models,
+                                                                     bodies_to_propagate,
+                                                                     initial_state,
+                                                                     simulation_start_epoch,
+                                                                     None,
+                                                                     termination_settings,
+                                                                     current_propagator,
+                                                                     output_variables=dependent_variables_to_save)
+    propagator_settings.integrator_settings = regular_integrator
+
+    regular_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+        bodies,
+        propagator_settings )
+    
+    errors = {}
+
+    regular_state_history = regular_dynamics_simulator.state_history
+    for epoch in regular_state_history.keys():
+        if epoch > end_benchmark:
+            continue
+        errors[epoch] = np.linalg.norm(regular_state_history[epoch] - benchmark_interpolator.interpolate(epoch))
+    perturbing_errors.append(errors)
+
+print('the number of errors is', len(perturbing_errors))
+
+###########################################################################
+# PLOTTING ################################################################
+###########################################################################
+
+# Plot the results
+
+for errors in state_errors_rotation:
+
+    plt.plot(errors.keys(),errors.values())
+plt.xlabel('Time [s]')
+plt.ylabel('State error [m]')
+plt.title('State error for rotation model')
+plt.yscale('log')
+plt.grid()
+plt.show()
+
+for errors in state_errors_atmosphere:
+    
+    plt.plot(errors.keys(),errors.values())
+plt.xlabel('Time [s]')
+plt.ylabel('State error [m]')
+plt.title('State error for atmosphere model')
+plt.yscale('log')
+plt.grid()
+plt.show()
+
+for errors in perturbing_errors:
+    plt.plot(errors.keys(),errors.values())
+    print('oneplot')
+plt.xlabel('Time [s]')
+plt.ylabel('State error [m]')
+plt.title('State error for perturbing bodies')
+plt.yscale('log')
+plt.grid()
+plt.show()

@@ -351,7 +351,11 @@ def get_propagator_settings_benchmark(shape_parameters,
     acceleration_settings_on_vehicle = {
         'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
                   propagation_setup.acceleration.aerodynamic()],
+        'Sun': [propagation_setup.acceleration.point_mass_gravity()],
+        'Moon': [propagation_setup.acceleration.point_mass_gravity()],
+        'Jupiter': [propagation_setup.acceleration.point_mass_gravity()]
     }
+    print(acceleration_settings_on_vehicle)
     # Create acceleration models.
     acceleration_settings = {'Capsule': acceleration_settings_on_vehicle}
     acceleration_models = propagation_setup.create_acceleration_models(
