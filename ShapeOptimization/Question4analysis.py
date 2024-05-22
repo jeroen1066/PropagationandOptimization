@@ -246,7 +246,7 @@ state_errors_atmosphere = []
 #test out the different atmosphere models
 for atmospheric_model in atmosphere_models:
     body_settings.get("Earth").atmosphere_settings = atmospheric_model
-    bodies = bodies_for_reference
+    bodies = environment_setup.create_system_of_bodies(body_settings)
     Util.add_capsule_to_body_system(bodies,
                                 shape_parameters,
                                 capsule_density)
@@ -302,6 +302,10 @@ for perturbing_body in perturbing_bodies:
             current_acceleration_settings[perturbing_body_inner] = [propagation_setup.acceleration.point_mass_gravity()]
             current_perturbing_bodies.append(perturbing_body_inner)
 
+    bodies = bodies_for_reference
+    Util.add_capsule_to_body_system(bodies,
+                                shape_parameters,
+                                capsule_density)
     acceleration_settings = {'Capsule': current_acceleration_settings}
     acceleration_models = propagation_setup.create_acceleration_models(
     bodies,
@@ -356,6 +360,7 @@ for perturbing_body in perturbing_bodies:
 for errors in state_errors_rotation:
 
     plt.plot(errors.keys(),errors.values())
+    print('rotation model')
 plt.xlabel('Time [s]')
 plt.ylabel('State error [m]')
 plt.title('State error for rotation model')
@@ -364,7 +369,8 @@ plt.grid()
 plt.show()
 
 for errors in state_errors_atmosphere:
-    
+    print('atmosphere model')
+    print(max(list(errors.values())))
     plt.plot(errors.keys(),errors.values())
 plt.xlabel('Time [s]')
 plt.ylabel('State error [m]')
@@ -375,6 +381,7 @@ plt.show()
 
 i = 0
 for errors in perturbing_errors:
+    print('perturbing error')
     plt.plot(errors.keys(),errors.values(),label='perturbing body '+str(perturbing_bodies[i]))
     i+=1
 
