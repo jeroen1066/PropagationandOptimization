@@ -33,7 +33,7 @@ integrators = [propagation_setup.integrator.CoefficientSets.rkf_45,
                 ]
 timesteps = np.logspace(0, 6, num=13, base=2.0, dtype=float)
 #timesteps = [1,2,4,8,16,32,64]
-print(timesteps)
+
 
 tolerances = [1e-5,5e-6, 1e-6,5e-7, 1e-7,5e-8, 1e-8,5e-9, 1e-9,5e-10, 1e-10]
 
@@ -77,6 +77,7 @@ body_settings = environment_setup.get_default_body_settings(
     global_frame_orientation)
 # Create bodies
 bodies = environment_setup.create_system_of_bodies(body_settings)
+bodies_for_reference = environment_setup.create_system_of_bodies(body_settings)
 
 # Create and add capsule to body system
 # NOTE TO STUDENTS: When making any modifications to the capsule vehicle, do NOT make them in this code, but in the
@@ -134,7 +135,6 @@ propagator_settings.integrator_settings = integrator_settings
 #propagator_settings.integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(
 #    benchmark_step_size,
 #    propagation_setup.integrator.CoefficientSets.rkf_56)
-#propagator_settings.print_settings.print_dependent_variable_indices = True
 
 benchmark_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
     bodies,
@@ -153,14 +153,14 @@ end_benchmark = list(benchmark_state_history.keys())[-1]
 # REGULAR SIMULATION ######################################################
 ###########################################################################
 
-regular_step_size = 8.
+regular_step_size = 0.5
 regular_integrator_coefs = propagation_setup.integrator.CoefficientSets.rkf_56
 regular_integrator = propagation_setup.integrator.runge_kutta_fixed_step(
     regular_step_size,
     regular_integrator_coefs
 )
 
-perturbing_bodies = ['Moon', 'Sun', 'Jupiter']
+perturbing_bodies = ['Moon', 'Sun', 'Jupiter', 'Mars', 'Venus', 'Mercury', 'Saturn', 'Uranus', 'Neptune']
 
 
 # set parameters for time at which initial data is extracted from spice
@@ -246,7 +246,7 @@ state_errors_atmosphere = []
 #test out the different atmosphere models
 for atmospheric_model in atmosphere_models:
     body_settings.get("Earth").atmosphere_settings = atmospheric_model
-    bodies = environment_setup.create_system_of_bodies(body_settings)
+    bodies = bodies_for_reference
     Util.add_capsule_to_body_system(bodies,
                                 shape_parameters,
                                 capsule_density)
@@ -302,11 +302,6 @@ for perturbing_body in perturbing_bodies:
             current_acceleration_settings[perturbing_body_inner] = [propagation_setup.acceleration.point_mass_gravity()]
             current_perturbing_bodies.append(perturbing_body_inner)
 
-    print('for the analysis of perturbing body',perturbing_body, 'the other perturbing bodies are:')
-    print(current_perturbing_bodies)
-
-    print(current_acceleration_settings)
-
     acceleration_settings = {'Capsule': current_acceleration_settings}
     acceleration_models = propagation_setup.create_acceleration_models(
     bodies,
@@ -351,7 +346,6 @@ for perturbing_body in perturbing_bodies:
         errors[epoch] = np.linalg.norm(regular_state_history[epoch] - benchmark_interpolator.interpolate(epoch))
     perturbing_errors.append(errors)
 
-print('the number of errors is', len(perturbing_errors))
 
 ###########################################################################
 # PLOTTING ################################################################
@@ -379,12 +373,15 @@ plt.yscale('log')
 plt.grid()
 plt.show()
 
+i = 0
 for errors in perturbing_errors:
-    plt.plot(errors.keys(),errors.values())
-    print('oneplot')
+    plt.plot(errors.keys(),errors.values(),label='perturbing body '+str(perturbing_bodies[i]))
+    i+=1
+
 plt.xlabel('Time [s]')
 plt.ylabel('State error [m]')
 plt.title('State error for perturbing bodies')
 plt.yscale('log')
 plt.grid()
+plt.legend()
 plt.show()
