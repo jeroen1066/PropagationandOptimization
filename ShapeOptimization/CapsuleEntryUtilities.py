@@ -273,9 +273,12 @@ def get_propagator_settings(shape_parameters,
     central_bodies = ['Earth']
 
     # Define accelerations acting on capsule
+    # Define accelerations acting on capsule
     acceleration_settings_on_vehicle = {
-        'Earth': [propagation_setup.acceleration.point_mass_gravity(),
-                  propagation_setup.acceleration.aerodynamic()]
+        'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
+                  propagation_setup.acceleration.aerodynamic()],
+        'Sun': [propagation_setup.acceleration.point_mass_gravity()],
+        'Moon': [propagation_setup.acceleration.point_mass_gravity()],
     }
     # Create acceleration models.
     acceleration_settings = {'Capsule': acceleration_settings_on_vehicle}

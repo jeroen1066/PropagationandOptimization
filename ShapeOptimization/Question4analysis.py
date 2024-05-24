@@ -17,6 +17,7 @@ import CapsuleEntryUtilities as Util
 # General python imports
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 ###########################################################################
 # PARAMETERS ##############################################################
@@ -75,6 +76,9 @@ body_settings = environment_setup.get_default_body_settings(
     bodies_to_create,
     global_frame_origin,
     global_frame_orientation)
+nrlmsise00 = environment_setup.atmosphere.nrlmsise00()  
+
+body_settings.get('Earth').atmosphere_settings = nrlmsise00
 # Create bodies
 bodies = environment_setup.create_system_of_bodies(body_settings)
 bodies_for_reference = environment_setup.create_system_of_bodies(body_settings)
@@ -135,10 +139,12 @@ propagator_settings.integrator_settings = integrator_settings
 #propagator_settings.integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(
 #    benchmark_step_size,
 #    propagation_setup.integrator.CoefficientSets.rkf_56)
-
+start = datetime.datetime.now()
 benchmark_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
     bodies,
     propagator_settings )
+benchmark_runtime = datetime.datetime.now() - start
+print('Benchmark runtime: ', benchmark_runtime)
 
 benchmark_state_history = benchmark_dynamics_simulator.state_history
 interpolator_settings = interpolators.lagrange_interpolation(8)
@@ -153,7 +159,7 @@ end_benchmark = list(benchmark_state_history.keys())[-1]
 # REGULAR SIMULATION ######################################################
 ###########################################################################
 
-regular_step_size = 0.5
+regular_step_size = 16
 regular_integrator_coefs = propagation_setup.integrator.CoefficientSets.rkf_56
 regular_integrator = propagation_setup.integrator.runge_kutta_fixed_step(
     regular_step_size,
@@ -207,6 +213,7 @@ state_errors_rotation = []
 
 for rotation_model in rotation_models:
     body_settings.get("Earth").rotation_model_settings = rotation_model
+    body_settings.get("Earth").atmosphere_settings = nrlmsise00
     bodies = environment_setup.create_system_of_bodies(body_settings)
     Util.add_capsule_to_body_system(bodies,
                                 shape_parameters,
@@ -221,10 +228,13 @@ for rotation_model in rotation_models:
 
 
     propagator_settings.integrator_settings = regular_integrator
-
+    start = datetime.datetime.now()
     regular_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
         bodies,
         propagator_settings )
+    regular_runtime = datetime.datetime.now() - start
+    print('Rotation model: ', rotation_model)
+    print('Rotational runtime: ', regular_runtime)
     
     regular_state_history = regular_dynamics_simulator.state_history
 
@@ -258,10 +268,14 @@ for atmospheric_model in atmosphere_models:
                                                                 dependent_variables_to_save)
 
     propagator_settings.integrator_settings = regular_integrator
-
+    start = datetime.datetime.now()
     regular_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
         bodies,
         propagator_settings )
+    
+    regular_runtime = datetime.datetime.now() - start
+    print('Atmosphere model: ', atmospheric_model)
+    print('Atmospheric runtime: ', regular_runtime)
 
     regular_state_history = regular_dynamics_simulator.state_history
 
@@ -336,10 +350,13 @@ for perturbing_body in perturbing_bodies:
                                                                      current_propagator,
                                                                      output_variables=dependent_variables_to_save)
     propagator_settings.integrator_settings = regular_integrator
-
+    start = datetime.datetime.now()
     regular_dynamics_simulator = numerical_simulation.create_dynamics_simulator(
         bodies,
         propagator_settings )
+    regular_runtime = datetime.datetime.now() - start
+    print('Perturbing body: ', perturbing_body)
+    print('Perturbing runtime: ', regular_runtime)
     
     errors = {}
 
@@ -356,26 +373,32 @@ for perturbing_body in perturbing_bodies:
 ###########################################################################
 
 # Plot the results
-
+i = 0
+labels = ['Simple rotation', 'Spice rotation']
 for errors in state_errors_rotation:
 
-    plt.plot(errors.keys(),errors.values())
+    plt.plot(errors.keys(),errors.values(),label=labels[i])
+    i+=1
     print('rotation model')
 plt.xlabel('Time [s]')
 plt.ylabel('State error [m]')
 plt.title('State error for rotation model')
 plt.yscale('log')
+plt.legend()
 plt.grid()
 plt.show()
-
+i = 0
+atmosphere_models = ['Exponential', 'Exponential predefined', 'US76', 'NRLMSISE00']
 for errors in state_errors_atmosphere:
     print('atmosphere model')
     print(max(list(errors.values())))
-    plt.plot(errors.keys(),errors.values())
+    plt.plot(errors.keys(),errors.values(),label=atmosphere_models[i])
+    i+=1
 plt.xlabel('Time [s]')
 plt.ylabel('State error [m]')
 plt.title('State error for atmosphere model')
 plt.yscale('log')
+plt.legend()
 plt.grid()
 plt.show()
 
