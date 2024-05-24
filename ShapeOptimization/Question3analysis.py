@@ -105,6 +105,11 @@ propagator_settings = Util.get_propagator_settings(shape_parameters,
                                                                  termination_settings,
                                                                  dependent_variables_to_save )
 
+propagator_settings_reserve = Util.get_propagator_settings(shape_parameters,
+                                                                 bodies,
+                                                                 simulation_start_epoch,
+                                                                 termination_settings,
+                                                                 dependent_variables_to_save )
 ###########################################################################
 # BENCHMARK CREATION#######################################################
 ###########################################################################
@@ -195,8 +200,11 @@ for integrator_index in range(4):
             interpolated_state = benchmark_interpolator.interpolate(epoch)
             errors.append(np.linalg.norm(state_history[epoch] - interpolated_state))
         maxerror = max(errors)
+        
         fixed_step_errors.append(maxerror)
         func_evals = dynamics_simulator.cumulative_number_of_function_evaluations
+        if maxerror < 10:
+            print('integrator: ', integrators[integrator_index], ' step: ', timestep, ' error: ', maxerror, ' func evals: ', func_evals[lastepoch])
         fixed_step_evaluations.append(func_evals[lastepoch])
 
     fixed_step_integrators_error.append(fixed_step_errors)
@@ -253,6 +261,9 @@ for integrator_index in range(4):
         variable_step_errors.append(maxerror)
         func_evals = dynamics_simulator.cumulative_number_of_function_evaluations
         variable_step_evaluations.append(func_evals[lastepoch])
+        if maxerror < 10:
+            print('integrator: ', integrators[integrator_index], ' tolerance: ', tolerance, ' error: ', maxerror, ' func evals: ', func_evals[lastepoch])
+
 
         if maxerror < lowest_error:
             lowest_error = maxerror
@@ -285,7 +296,7 @@ plt.legend()
 plt.grid()
 plt.show()
 
-
+print('timesteps: ', timesteps)
 #look at variable timestep errors
 for i in range(len(variable_step_tests)):
     state_history = variable_step_tests[i]
@@ -301,6 +312,125 @@ for i in range(len(variable_step_tests)):
     plt.plot(epochs, errors, label=variable_step_tests_names[i], linestyle = '--', marker = 'o')
 plt.yscale('log')
 plt.xlabel('Time [s]')
+plt.ylabel('Error[m]')
+plt.legend()
+plt.grid()
+plt.show()
+
+testtimestep0 = 8
+test0 = integrator_settings = integrator.runge_kutta_fixed_step(
+        testtimestep0,
+        propagation_setup.integrator.CoefficientSets.rkf_45,
+        integrator.OrderToIntegrate.lower
+        )
+
+testtimestep1 = 32
+test1 = integrator_settings = integrator.runge_kutta_fixed_step(
+        testtimestep1,
+        propagation_setup.integrator.CoefficientSets.rkf_78,
+        integrator.OrderToIntegrate.lower
+        )
+
+testtimestep2 = 16
+test2 = integrator_settings = integrator.runge_kutta_fixed_step(
+        testtimestep2,
+        propagation_setup.integrator.CoefficientSets.rkf_56,
+        integrator.OrderToIntegrate.lower
+        )
+
+testtolerance1 = 1e-7
+testtolerance2 = 1e-8
+
+step_size_control_settings1 = propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance(
+    testtolerance1,
+    testtolerance1,
+    minimum_factor_increase = 0.01,
+    maximum_factor_increase = 100
+)
+
+step_size_control_settings2 = propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance(
+    testtolerance2,
+    testtolerance2,
+    minimum_factor_increase = 0.01,
+    maximum_factor_increase = 100
+)
+
+step_size_validation_settings = propagation_setup.integrator.step_size_validation(
+    0.0001,
+    1000
+    )
+
+test3 = integrator.runge_kutta_variable_step(
+benchmark_step_size,
+propagation_setup.integrator.CoefficientSets.rkf_56,
+step_size_control_settings1,
+step_size_validation_settings
+)
+
+test4 = integrator.runge_kutta_variable_step(
+benchmark_step_size,
+propagation_setup.integrator.CoefficientSets.rkf_56,
+step_size_control_settings2,
+step_size_validation_settings
+)
+
+
+testintegrators = [test0, test1, test2, test3, test4]
+
+np.random.seed = 42
+deviations = np.random.normal(0,1e-5,(6,6))
+testerrors = []
+unperturbed_initial_state = propagator_settings_reserve.initial_states
+for testintegrator in testintegrators:
+    errorslocal = []
+    for i in range(7):
+        if i == 0:
+            deviation = np.zeros(6)
+        else:
+            deviation = deviations[i-1,:]
+        print('deviation',deviation)
+
+        
+        new_initial_state = unperturbed_initial_state + deviation
+        propagator_settings_reserve.initial_states = new_initial_state
+        propagator_settings_reserve.integrator_settings = testintegrator
+
+        dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+            bodies,
+            propagator_settings_reserve )
+        completed_succesfully = dynamics_simulator.integration_completed_successfully
+        lastepoch = list(state_history.keys())[-1]
+        lastbenchmarkepoch = list(benchmark_state_history.keys())[-1]
+        numevals = dynamics_simulator.cumulative_number_of_function_evaluations.values()
+        print('the delay in ending the simulation was: ', lastepoch - lastbenchmarkepoch)
+        print('the simulation was succesful: ', completed_succesfully)
+        print('the number of function evaluations was: ', list(numevals)[-1])
+        if not dynamics_simulator.integration_completed_successfully:
+            continue
+        
+        state_history = dynamics_simulator.state_history
+
+        errors = []
+        lastepoch = list(state_history.keys())[-1]
+        lastbenchmarkepoch = list(benchmark_state_history.keys())[-1]
+
+        for epoch in state_history.keys():
+            if epoch > lastbenchmarkepoch - 10*benchmark_step_size:
+                continue
+            interpolated_state = benchmark_interpolator.interpolate(epoch)
+            errors.append(np.linalg.norm(state_history[epoch] - interpolated_state))
+        maxerror = max(errors)
+        errorslocal.append(maxerror)
+        #func_evals = dynamics_simulator.cumulative_number_of_function_evaluations
+        #fixed_step_evaluations.append(func_evals[lastepoch])    
+    testerrors.append(errorslocal)
+
+integratornames = ['Fixed step RK4 timestep 8','Fixed step RK5 timestep 16', 'Fixed step RK7 timestep 32', 'Variable step RKF56, tol 1e-7', 'Variable step RKF56, tol 1e-8']
+
+for i in range(len(testintegrators)):
+    plt.plot(testerrors[i], label = integratornames[i], linestyle = '-',marker = 'o')
+plt.yscale('log')
+plt.xlabel('Perturbation case')
 plt.ylabel('Error[m]')
 plt.legend()
 plt.grid()
