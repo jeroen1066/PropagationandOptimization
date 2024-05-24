@@ -442,6 +442,8 @@ plt.plot(timesteps, cartesianerror_128128, label='128128')
 
 plt.yscale('log')
 plt.legend()
+plt.xlabel('Time [s]')
+plt.ylabel('Cartesian error [m]')
 plt.grid()
 plt.show()
 
@@ -457,6 +459,8 @@ plt.plot(timesteps, improvement_200200_radial, label='128128')
 
 plt.yscale('log')
 plt.legend()
+plt.xlabel('Time [s]')
+plt.ylabel('Radial error [m]')
 plt.grid()
 plt.show()
 
@@ -472,5 +476,7 @@ plt.plot(timesteps, improvement_200200_velocity, label='128128')
 
 plt.yscale('log')
 plt.legend()
+plt.xlabel('Time [s]')
+plt.ylabel('Velocity error [m/s]')
 plt.grid() 
 plt.show()
