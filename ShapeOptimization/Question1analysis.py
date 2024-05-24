@@ -55,7 +55,7 @@ capsule_density = 250.0  # kg m-3
 ###########################################################################
 
 # Define settings for celestial bodies
-bodies_to_create = ['Earth']
+bodies_to_create = ['Earth', 'Moon', 'Sun']
 # Define coordinate system
 global_frame_origin = 'Earth'
 global_frame_orientation = 'J2000'
@@ -199,4 +199,57 @@ plt.ylabel('Interpolation error [m]')
 plt.grid()
 plt.yscale('log')
 plt.legend()
+plt.show()
+
+###########################################################################
+# BENCHMARK ###############################################################
+###########################################################################
+
+timestep = 0.5
+integrator_settings = integrator.runge_kutta_fixed_step(
+        timestep,
+        coefficient_set,
+        integrator.OrderToIntegrate.lower
+
+)
+
+dependent_variables_to_save = [propagation_setup.dependent_variable.mach_number('Capsule', 'Earth'),
+                                   propagation_setup.dependent_variable.altitude('Capsule', 'Earth'),
+                                   propagation_setup.dependent_variable.single_acceleration_norm(propagation_setup.acceleration.aerodynamic_type,'Capsule','Earth'),
+                                   propagation_setup.dependent_variable.keplerian_state('Capsule', 'Earth')]
+
+propagator_settings = Util.get_propagator_settings(shape_parameters,
+                                                    bodies,
+                                                    simulation_start_epoch,
+                                                    termination_settings,
+                                                    dependent_variables_to_save,
+                                                    propagator  )
+
+propagator_settings.integrator_settings = integrator_settings
+
+dynamics_simulator = numerical_simulation.create_dynamics_simulator(bodies, propagator_settings)
+
+dependent_variables = dynamics_simulator.dependent_variable_history
+
+dependent_variables_values = np.array(list(dependent_variables.values()))
+dependent_variables_times = np.array(list(dependent_variables.keys()))
+
+mach_number = dependent_variables_values[:,0]
+altitude = dependent_variables_values[:,1]
+acceleration = dependent_variables_values[:,2]
+eccentricity = dependent_variables_values[:,4]
+values = [mach_number, altitude, acceleration, eccentricity]
+
+fig,axs = plt.subplots(2,2)
+names = ['Mach number[-]', 'Altitude [m]', 'Aerodynamic acceleration [m/s^2]', 'Eccentricity[-]']
+for j in range(4):
+    state = values[j]
+    axs[j//2,j%2].plot(dependent_variables_times,state)
+    axs[j//2,j%2].set_title(names[j])
+    axs[j//2,j%2].set_ylabel(names[j])
+    if j == 0 or j == 2:
+        axs[j//2,j%2].set_yscale('log')
+    axs[j//2,j%2].grid()
+    axs[j//2,j%2].set_xlabel('Time [s]')
+    
 plt.show()
