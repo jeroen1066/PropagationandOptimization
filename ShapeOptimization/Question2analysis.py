@@ -161,10 +161,10 @@ available_propagators_names = ['cowell',
 cowell_variable_names = ['x', 'y', 'z', 'vx', 'vy', 'vz']
 encke_variable_names = ['x', 'y', 'z', 'vx', 'vy', 'vz']
 gauss_keplerian_variable_names = ['a', 'e', 'i', 'RAAN', 'AOP', 'TA']
-gauss_modified_equinoctial_variable_names = ['semiParameter', 'h1', 'h2', 'k1', 'k2', 'trueLongitude']
-unified_state_model_quaternions_variable_names = ['x', 'y', 'z', 'q1', 'q2', 'q3', 'q4']
-unified_state_model_modified_rodrigues_parameters_variable_names = ['x', 'y', 'z', 'q1', 'q2', 'q3', 'q4']
-unified_state_model_exponential_map_variable_names = ['x', 'y', 'z', 'q1', 'q2', 'q3', 'q4']
+gauss_modified_equinoctial_variable_names = ['p', 'f', 'g', 'h', 'k', 'L']
+unified_state_model_quaternions_variable_names = ['C', 'Rf1', 'Rf2', 'e1', 'e2', 'e3','mu']
+unified_state_model_modified_rodrigues_parameters_variable_names = ['C', 'Rf1', 'Rf2', 'sigma1', 'sigma22', 'sigma3','S']
+unified_state_model_exponential_map_variable_names = ['C', 'Rf1', 'Rf2', 'a1', 'a2', 'a3','S']
 
 variable_names = [cowell_variable_names,
                      encke_variable_names,
@@ -247,6 +247,7 @@ for i in range(len(available_propagators)):
         axs[j//3,j%3].plot(times,state)
         axs[j//3,j%3].set_title('State ' +state_names[j])
         axs[j//3,j%3].grid()
+        axs[j//3,j%3].set_xlabel('Time [s]')
         fig.suptitle(available_propagators_names[i])
         #axs[j//2,j%2].title = available_propagators_names[i]
     plt.show()
