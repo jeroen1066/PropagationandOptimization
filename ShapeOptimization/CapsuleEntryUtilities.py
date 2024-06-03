@@ -153,7 +153,7 @@ def get_dependent_variable_save_settings() -> list:
     """
     dependent_variables_to_save = [propagation_setup.dependent_variable.single_acceleration('aerodynamic_type','Capsule','Earth'),
                                    propagation_setup.dependent_variable.total_acceleration_norm('Capsule', 'Earth'),
-                                   propagation_setup.dependent_variable.stagnation_point_heat_flux()]
+                                   propagation_setup.dependent_variable.stagnation_point_heat_flux('Capsule', 'Earth')]
     return dependent_variables_to_save
 
 
