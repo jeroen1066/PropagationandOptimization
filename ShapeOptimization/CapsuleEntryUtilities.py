@@ -153,7 +153,7 @@ def get_dependent_variable_save_settings() -> list:
     """
     dependent_variables_to_save = [propagation_setup.dependent_variable.single_acceleration('aerodynamic_type','Capsule','Earth'),
                                    propagation_setup.dependent_variable.total_acceleration_norm('Capsule', 'Earth'),
-                                   propagation_setup.dependent_variable.]
+                                   propagation_setup.dependent_variable.stagnation_point_heat_flux()]
     return dependent_variables_to_save
 
 
@@ -274,96 +274,11 @@ def get_propagator_settings(shape_parameters,
     central_bodies = ['Earth']
 
     # Define accelerations acting on capsule
-    # Define accelerations acting on capsule
     acceleration_settings_on_vehicle = {
         'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
                   propagation_setup.acceleration.aerodynamic()],
         'Sun': [propagation_setup.acceleration.point_mass_gravity()],
-        'Moon': [propagation_setup.acceleration.point_mass_gravity()],
-    }
-    # Create acceleration models.
-    acceleration_settings = {'Capsule': acceleration_settings_on_vehicle}
-    acceleration_models = propagation_setup.create_acceleration_models(
-        bodies,
-        acceleration_settings,
-        bodies_to_propagate,
-        central_bodies)
-
-    new_angles = np.array([shape_parameters[5], 0.0, 0.0])
-    new_angle_function = lambda time : new_angles
-    bodies.get_body('Capsule').rotation_model.reset_aerodynamic_angle_function( new_angle_function )
-
-
-    # Retrieve initial state
-    initial_state = get_initial_state(simulation_start_epoch,bodies)
-
-    # Create propagation settings for the translational dynamics. NOTE: these are not yet 'valid', as no
-    # integrator settings are defined yet
-    propagator_settings = propagation_setup.propagator.translational(central_bodies,
-                                                                     acceleration_models,
-                                                                     bodies_to_propagate,
-                                                                     initial_state,
-                                                                     simulation_start_epoch,
-                                                                     None,
-                                                                     termination_settings,
-                                                                     current_propagator,
-                                                                     output_variables=dependent_variables_to_save)
-    return propagator_settings
-
-def get_propagator_settings_benchmark(shape_parameters,
-                                    bodies,
-                                    simulation_start_epoch,
-                                    termination_settings,
-                                    dependent_variables_to_save,
-                                    current_propagator = propagation_setup.propagator.cowell ):
-    """
-    Creates the propagator settings.
-
-    This function creates the propagator settings for translational motion and mass, for the given simulation settings
-    Note that, in this function, the entry of the shape_parameters representing the vehicle attitude (angle of attack)
-    is processed to redefine the vehice attitude. The propagator settings that are returned as output of this function
-    are not yet usable: they do not contain any integrator settings, which should be set at a later point by the user
-
-    Parameters
-    ----------
-    shape_parameters : list[ float ]
-        List of free parameters for the low-thrust model, which will be used to update the vehicle properties such that
-        the new thrust/magnitude direction are used. The meaning of the parameters in this list is stated at the
-        start of the *Propagation.py file
-    bodies : tudatpy.kernel.numerical_simulation.environment.SystemOfBodies
-        System of bodies present in the simulation.
-    simulation_start_epoch : float
-        Start of the simulation [s] with t=0 at J2000.
-    termination_settings : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.PropagationTerminationSettings
-        Propagation termination settings object to be used
-    dependent_variables_to_save : list[tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable]
-        List of dependent variables to save.
-    current_propagator : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.TranslationalPropagatorType
-        Type of propagator to be used for translational dynamics
-
-    Returns
-    -------
-    propagator_settings : tudatpy.kernel.numerical_simulation.propagation_setup.integrator.MultiTypePropagatorSettings
-        Propagator settings to be provided to the dynamics simulator.
-    """
-
-    # Define bodies that are propagated and their central bodies of propagation
-    bodies_to_propagate = ['Capsule']
-    central_bodies = ['Earth']
-
-    # Define accelerations acting on capsule
-    acceleration_settings_on_vehicle = {
-        'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
-                  propagation_setup.acceleration.aerodynamic()],
-        'Sun': [propagation_setup.acceleration.point_mass_gravity()],
-        'Moon': [propagation_setup.acceleration.point_mass_gravity()],
-        'Jupiter': [propagation_setup.acceleration.point_mass_gravity()],
-        'Mars': [propagation_setup.acceleration.point_mass_gravity()],
-        'Venus': [propagation_setup.acceleration.point_mass_gravity()],
-        'Saturn': [propagation_setup.acceleration.point_mass_gravity()],
-        'Mercury': [propagation_setup.acceleration.point_mass_gravity()],
-        'Uranus': [propagation_setup.acceleration.point_mass_gravity()],
-        'Neptune': [propagation_setup.acceleration.point_mass_gravity()]
+        'Moon': [propagation_setup.acceleration.point_mass_gravity()]
     }
     #print(acceleration_settings_on_vehicle)
     # Create acceleration models.
@@ -394,54 +309,17 @@ def get_propagator_settings_benchmark(shape_parameters,
                                                                      current_propagator,
                                                                      output_variables=dependent_variables_to_save)
     return propagator_settings
-
-def get_propagator_settings_sphericalharmonics(shape_parameters,
-                                    bodies,
-                                    simulation_start_epoch,
-                                    termination_settings,
-                                    dependent_variables_to_save,
-                                    order,
-                                    degree,
-                                    current_propagator = propagation_setup.propagator.cowell ):
-    """
-    Creates the propagator settings.
-
-    This function creates the propagator settings for translational motion and mass, for the given simulation settings
-    Note that, in this function, the entry of the shape_parameters representing the vehicle attitude (angle of attack)
-    is processed to redefine the vehice attitude. The propagator settings that are returned as output of this function
-    are not yet usable: they do not contain any integrator settings, which should be set at a later point by the user
-
-    Parameters
-    ----------
-    shape_parameters : list[ float ]
-        List of free parameters for the low-thrust model, which will be used to update the vehicle properties such that
-        the new thrust/magnitude direction are used. The meaning of the parameters in this list is stated at the
-        start of the *Propagation.py file
-    bodies : tudatpy.kernel.numerical_simulation.environment.SystemOfBodies
-        System of bodies present in the simulation.
-    simulation_start_epoch : float
-        Start of the simulation [s] with t=0 at J2000.
-    termination_settings : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.PropagationTerminationSettings
-        Propagation termination settings object to be used
-    dependent_variables_to_save : list[tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable]
-        List of dependent variables to save.
-    current_propagator : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.TranslationalPropagatorType
-        Type of propagator to be used for translational dynamics
-
-    Returns
-    -------
-    propagator_settings : tudatpy.kernel.numerical_simulation.propagation_setup.integrator.MultiTypePropagatorSettings
-        Propagator settings to be provided to the dynamics simulator.
-    """
-
     # Define bodies that are propagated and their central bodies of propagation
     bodies_to_propagate = ['Capsule']
     central_bodies = ['Earth']
 
     # Define accelerations acting on capsule
+    # Define accelerations acting on capsule
     acceleration_settings_on_vehicle = {
-        'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(order,degree),
+        'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
                   propagation_setup.acceleration.aerodynamic()],
+        'Sun': [propagation_setup.acceleration.point_mass_gravity()],
+        'Moon': [propagation_setup.acceleration.point_mass_gravity()],
     }
     # Create acceleration models.
     acceleration_settings = {'Capsule': acceleration_settings_on_vehicle}
@@ -471,7 +349,6 @@ def get_propagator_settings_sphericalharmonics(shape_parameters,
                                                                      current_propagator,
                                                                      output_variables=dependent_variables_to_save)
     return propagator_settings
-
 
 ###########################################################################
 # CAPSULE SHAPE/AERODYNAMICS UTILITIES ####################################
@@ -856,80 +733,3 @@ def compare_benchmarks(first_benchmark: dict,
     return benchmark_difference
 
 
-def get_propagator_settings_runs(shape_parameters,
-                                    bodies,
-                                    simulation_start_epoch,
-                                    termination_settings,
-                                    dependent_variables_to_save,
-                                    current_propagator = propagation_setup.propagator.cowell ):
-    """
-    Creates the propagator settings.
-
-    This function creates the propagator settings for translational motion and mass, for the given simulation settings
-    Note that, in this function, the entry of the shape_parameters representing the vehicle attitude (angle of attack)
-    is processed to redefine the vehice attitude. The propagator settings that are returned as output of this function
-    are not yet usable: they do not contain any integrator settings, which should be set at a later point by the user
-
-    Parameters
-    ----------
-    shape_parameters : list[ float ]
-        List of free parameters for the low-thrust model, which will be used to update the vehicle properties such that
-        the new thrust/magnitude direction are used. The meaning of the parameters in this list is stated at the
-        start of the *Propagation.py file
-    bodies : tudatpy.kernel.numerical_simulation.environment.SystemOfBodies
-        System of bodies present in the simulation.
-    simulation_start_epoch : float
-        Start of the simulation [s] with t=0 at J2000.
-    termination_settings : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.PropagationTerminationSettings
-        Propagation termination settings object to be used
-    dependent_variables_to_save : list[tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable]
-        List of dependent variables to save.
-    current_propagator : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.TranslationalPropagatorType
-        Type of propagator to be used for translational dynamics
-
-    Returns
-    -------
-    propagator_settings : tudatpy.kernel.numerical_simulation.propagation_setup.integrator.MultiTypePropagatorSettings
-        Propagator settings to be provided to the dynamics simulator.
-    """
-
-    # Define bodies that are propagated and their central bodies of propagation
-    bodies_to_propagate = ['Capsule']
-    central_bodies = ['Earth']
-
-    # Define accelerations acting on capsule
-    acceleration_settings_on_vehicle = {
-        'Earth': [propagation_setup.acceleration.spherical_harmonic_gravity(64,64),
-                  propagation_setup.acceleration.aerodynamic()],
-        'Sun': [propagation_setup.acceleration.point_mass_gravity()],
-        'Moon': [propagation_setup.acceleration.point_mass_gravity()]
-    }
-    #print(acceleration_settings_on_vehicle)
-    # Create acceleration models.
-    acceleration_settings = {'Capsule': acceleration_settings_on_vehicle}
-    acceleration_models = propagation_setup.create_acceleration_models(
-        bodies,
-        acceleration_settings,
-        bodies_to_propagate,
-        central_bodies)
-
-    new_angles = np.array([shape_parameters[5], 0.0, 0.0])
-    new_angle_function = lambda time : new_angles
-    bodies.get_body('Capsule').rotation_model.reset_aerodynamic_angle_function( new_angle_function )
-
-
-    # Retrieve initial state
-    initial_state = get_initial_state(simulation_start_epoch,bodies)
-
-    # Create propagation settings for the translational dynamics. NOTE: these are not yet 'valid', as no
-    # integrator settings are defined yet
-    propagator_settings = propagation_setup.propagator.translational(central_bodies,
-                                                                     acceleration_models,
-                                                                     bodies_to_propagate,
-                                                                     initial_state,
-                                                                     simulation_start_epoch,
-                                                                     None,
-                                                                     termination_settings,
-                                                                     current_propagator,
-                                                                     output_variables=dependent_variables_to_save)
-    return propagator_settings

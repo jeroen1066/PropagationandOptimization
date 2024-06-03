@@ -133,7 +133,7 @@ for i in range (numparameters):
                                 shape_parameters,
                                 capsule_density)
         
-        propagator_settings = Util.get_propagator_settings_benchmark(shape_parameters,
+        propagator_settings = Util.get_propagator_settings(shape_parameters,
                                                                  bodies,
                                                                  simulation_start_epoch,
                                                                  termination_settings,
