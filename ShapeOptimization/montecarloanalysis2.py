@@ -26,7 +26,7 @@ spice_interface.load_standard_kernels()
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 500
+numsimulations = 400
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
@@ -176,6 +176,8 @@ for j in range (numsimulations):
     total_heat_load = 0
     has_skipped = False
     stability = -1000
+    mass_capsule = bodies.get_body('Capsule').mass
+    volume_capsule = mass_capsule/capsule_density
     
     for t in times:
         aerodynamic_acceleration = dependent_variable_history[t][:3]
@@ -202,11 +204,11 @@ for j in range (numsimulations):
         if velocity[2] > 0:
             has_skipped = True
     
-    objectives[i,j] = [max_ld,max_g_load]
+    objectives[i,j] = [volume_capsule,max_ld,max_g_load]
     constraints[i,j] = [max_heat_flux,total_heat_load,has_skipped]
-    if j % 100 == 0:
+    if j+1 % 100 == 0:
         print('Time for 100 simulations: ',datetime.datetime.now()-starttime)
-        print('Number of simulations done: ',j, 'out of ',numsimulations)
+        print('Number of simulations done: ',j+1, 'out of ',numsimulations)
         starttime = datetime.datetime.now()
 
 within_constraints = []

@@ -18,13 +18,23 @@ import CapsuleEntryUtilities as Util
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
+import pickle
+
+spice_interface.load_standard_kernels()
 
 ###########################################################################
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 200
+numsimulations = 20
 numparameters = 7
+
+n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
+
+#constraints
+heat_flux_constraint = 5e6
+heat_load_constraint = 200e6
+stability_constraint = 0
 
 ###########################################################################
 # DEFINE SIMULATION SETTINGS ##############################################
@@ -120,11 +130,11 @@ for i in range (numparameters):
 
     for j in range (numsimulations):
         if i != 7:
-            shape_parameters = default_shape_parameters
+            shape_parameters = default_shape_parameters[:]
             shape_parameters[i] = shape_variation[j]
 
         else:
-            shape_parameters = default_shape_parameters
+            shape_parameters = default_shape_parameters[:]
             capsule_density = shape_variation[j]
 
 
@@ -139,33 +149,42 @@ for i in range (numparameters):
                                                                  termination_settings,
                                                                  dependent_variables_to_save )
         
+        propagator_settings.integrator_settings = integrator_settings
+        
         dynamics_simulator = numerical_simulation.create_dynamics_simulator(
         bodies,
         propagator_settings )
 
         state_history = dynamics_simulator.state_history
         dependent_variable_history = dynamics_simulator.dependent_variable_history
-        state_history_array = np.array(list(state_history.values))
-        dependent_variable_history_array = np.array(list(dependent_variable_history.values))
-        times = np.array(list(state_history.keys))
-        inputs[i,j] = shape_parameters
+        state_history_array = np.array(list(state_history.values()))
+        dependent_variable_history_array = np.array(list(dependent_variable_history.values()))
+        times = np.array(list(state_history.keys()))
+        input_value = shape_parameters[:]
+        input_value.append(capsule_density)
+        inputs[i,j] = input_value[i]
 
         #dependent variable will eventaully have 5 members: 
         # 3d aerodynamic acceleration,
         # 1d g-force,
-        # heat flux
+        # density
         # skipping is defined by having a height increase during propagation
         max_ld = 0
         max_g_load = 0
         max_heat_flux = 0
         total_heat_load = 0
         has_skipped = False
+        stability = -1000
+        mass_capsule = bodies.get_body('Capsule').mass
+        volume_capsule = mass_capsule/capsule_density
 
         for t in times:
             aerodynamic_acceleration = dependent_variable_history[t][:3]
             velocity = state_history[t][3:]
+            velocitynorm = np.linalg.norm(velocity)
             g_load = np.linalg.norm(aerodynamic_acceleration)/9.81
-            heat_flux = dependent_variable_history[t][4]
+            density = dependent_variable_history[t][4]
+            heat_flux = (density**(1-n)*velocitynorm**3)/(shape_parameters[0]**n)
 
             drag = np.dot(aerodynamic_acceleration,velocity)/np.linalg.norm(velocity)
             helpervec = state_history[t][:3]/np.linalg.norm(state_history[t][:3])
@@ -181,14 +200,26 @@ for i in range (numparameters):
                 if lift/drag > max_ld:
                     max_ld = lift/drag
             total_heat_load += heat_flux
+            
             if velocity[2] > 0:
                 has_skipped = True
         
-        objectives[i,j] = [max_ld,max_g_load]
-        constraints[i,j] = [max_heat_flux,total_heat_load,has_skipped]
+        objectives[i,j] = [volume_capsule,max_ld,max_g_load]
+        constraints[i,j] = [max_heat_flux,total_heat_load,stability,has_skipped]
 
+within_constraints = []
+outside_constraints = []
+for i in range(numparameters):
+    for j in range(numsimulations):
+        within_heat_flux = constraints[i,j][0] < heat_flux_constraint
+        within_heat_load = constraints[i,j][1] < heat_load_constraint
+        within_stability = constraints[i,j][2] < stability_constraint
+        within_skip = constraints[i,j][3] == False
 
-
+        if within_heat_flux and within_heat_load and within_stability and within_skip:
+            within_constraints.append([inputs[i,j],objectives[i,j]])
+        else:
+            outside_constraints.append([inputs[i,j],objectives[i,j]])
 
 
         
