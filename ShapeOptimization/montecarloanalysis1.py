@@ -26,7 +26,7 @@ spice_interface.load_standard_kernels()
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 200
+numsimulations = 20
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
@@ -178,6 +178,7 @@ for i in range (numparameters):
         mass_capsule = bodies.get_body('Capsule').mass
         volume_capsule = mass_capsule/capsule_density
         last_t = times[0]
+        succesfull_completion = dynamics_simulator.integration_completed_successfully
 
         for t in times:
             timestep = t-last_t
@@ -208,7 +209,7 @@ for i in range (numparameters):
                 has_skipped = True
         
         objectives[i,j] = [volume_capsule,max_ld,max_g_load]
-        constraints[i,j] = [max_heat_flux,total_heat_load,stability,has_skipped]
+        constraints[i,j] = [max_heat_flux,total_heat_load,stability,has_skipped,succesfull_completion]
         last_t = t
 
 within_constraints = []
@@ -221,8 +222,9 @@ for i in range(numparameters):
         within_heat_load = constraints[i,j][1] < heat_load_constraint
         within_stability = constraints[i,j][2] < stability_constraint
         within_skip = constraints[i,j][3] == False
+        succesfull_completion = constraints[i,j][4]
 
-        if within_heat_flux and within_heat_load and within_stability and within_skip:
+        if within_heat_flux and within_heat_load and within_stability and within_skip and succesfull_completion:
             input_value = inputs[i,j]
             objective_value = objectives[i,j]
             within_constraints_parameter.append([input_value,objective_value])
