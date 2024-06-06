@@ -26,7 +26,7 @@ spice_interface.load_standard_kernels()
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 20
+numsimulations = 100
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
@@ -110,13 +110,13 @@ default_shape_parameters = [7.6983117481,
                     0.1158838553,
                     0.3203083369]
 np.random.seed(42)
-range_per_parameter = [[0,20],
+range_per_parameter = [[0,5],
+                       [0,10],
                        [0,5],
-                       [0,5],
-                        [0,1],
-                        [0,1],
-                        [-1,1],
-                        [150,500]
+                        [0,5],
+                        [2.5,5.5],
+                        [-0.25,1],
+                        [50,400]
                        ]
 
 inputs = np.empty((numparameters,numsimulations),dtype=object)
@@ -208,7 +208,7 @@ for i in range (numparameters):
             if np.inner(velocity,state_history[t][:3]) > 0:
                 has_skipped = True
         
-        objectives[i,j] = [volume_capsule,max_ld,max_g_load]
+        objectives[i,j] = [mass_capsule,max_ld,max_g_load]
         constraints[i,j] = [max_heat_flux,total_heat_load,stability,has_skipped,succesfull_completion]
         last_t = t
 
