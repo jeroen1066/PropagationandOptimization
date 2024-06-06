@@ -177,8 +177,10 @@ for i in range (numparameters):
         stability = -1000
         mass_capsule = bodies.get_body('Capsule').mass
         volume_capsule = mass_capsule/capsule_density
+        last_t = times[0]
 
         for t in times:
+            timestep = t-last_t
             aerodynamic_acceleration = dependent_variable_history[t][:3]
             velocity = state_history[t][3:]
             velocitynorm = np.linalg.norm(velocity)
@@ -199,13 +201,14 @@ for i in range (numparameters):
             if drag > 0.0001:
                 if lift/drag > max_ld:
                     max_ld = lift/drag
-            total_heat_load += heat_flux
+            total_heat_load += heat_flux*timestep
             
             if np.inner(velocity,state_history[t][:3]) > 0:
                 has_skipped = True
         
         objectives[i,j] = [volume_capsule,max_ld,max_g_load]
         constraints[i,j] = [max_heat_flux,total_heat_load,stability,has_skipped]
+        last_t = t
 
 within_constraints = []
 outside_constraints = []
