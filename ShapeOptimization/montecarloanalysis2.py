@@ -187,7 +187,7 @@ for j in range (numsimulations):
         density = dependent_variable_history[t][4]
         heat_flux = (density**(1-n)*velocitynorm**3)/(shape_parameters[0]**n)
 
-        drag = np.dot(aerodynamic_acceleration,velocity)/np.linalg.norm(velocity)
+        drag = -np.dot(aerodynamic_acceleration,velocity)/np.linalg.norm(velocity)
         helpervec = state_history[t][:3]/np.linalg.norm(state_history[t][:3])
         orthogonal = np.cross(helpervec,velocity)
         lift_direction = np.cross(velocity,orthogonal)
@@ -197,11 +197,11 @@ for j in range (numsimulations):
             max_g_load = g_load
         if heat_flux > max_heat_flux:
             max_heat_flux = heat_flux
-        if drag > 0.1:
+        if drag > 0.0001:
             if lift/drag > max_ld:
                 max_ld = lift/drag
         total_heat_load += heat_flux
-        if velocity[2] > 0:
+        if np.inner(velocity,state_history[t][:3]) > 0:
             has_skipped = True
     
     objectives[i,j] = [volume_capsule,max_ld,max_g_load]

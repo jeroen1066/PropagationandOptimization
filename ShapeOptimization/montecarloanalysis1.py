@@ -26,7 +26,7 @@ spice_interface.load_standard_kernels()
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 20
+numsimulations = 200
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
@@ -113,8 +113,8 @@ np.random.seed(42)
 range_per_parameter = [[0,20],
                        [0,5],
                        [0,5],
-                        [-1,1],
-                        [-1,1],
+                        [0,1],
+                        [0,1],
                         [-1,1],
                         [150,500]
                        ]
@@ -129,7 +129,7 @@ for i in range (numparameters):
     shape_variation = np.random.uniform(range_per_parameter[i][0],range_per_parameter[i][1],numsimulations)
 
     for j in range (numsimulations):
-        if i != 7:
+        if i != 6:
             shape_parameters = default_shape_parameters[:]
             shape_parameters[i] = shape_variation[j]
 
@@ -169,9 +169,9 @@ for i in range (numparameters):
         # 1d g-force,
         # density
         # skipping is defined by having a height increase during propagation
-        max_ld = 0
-        max_g_load = 0
-        max_heat_flux = 0
+        max_ld = -np.inf
+        max_g_load = -np.inf
+        max_heat_flux = -np.inf
         total_heat_load = 0
         has_skipped = False
         stability = -1000
@@ -186,7 +186,7 @@ for i in range (numparameters):
             density = dependent_variable_history[t][4]
             heat_flux = (density**(1-n)*velocitynorm**3)/(shape_parameters[0]**n)
 
-            drag = np.dot(aerodynamic_acceleration,velocity)/np.linalg.norm(velocity)
+            drag = -np.dot(aerodynamic_acceleration,velocity)/np.linalg.norm(velocity)
             helpervec = state_history[t][:3]/np.linalg.norm(state_history[t][:3])
             orthogonal = np.cross(helpervec,velocity)
             lift_direction = np.cross(velocity,orthogonal)
@@ -196,12 +196,12 @@ for i in range (numparameters):
                 max_g_load = g_load
             if heat_flux > max_heat_flux:
                 max_heat_flux = heat_flux
-            if drag > 0.1:
+            if drag > 0.0001:
                 if lift/drag > max_ld:
                     max_ld = lift/drag
             total_heat_load += heat_flux
             
-            if velocity[2] > 0:
+            if np.inner(velocity,state_history[t][:3]) > 0:
                 has_skipped = True
         
         objectives[i,j] = [volume_capsule,max_ld,max_g_load]
@@ -210,6 +210,8 @@ for i in range (numparameters):
 within_constraints = []
 outside_constraints = []
 for i in range(numparameters):
+    within_constraints_parameter = []
+    outside_constraints_parameter = []
     for j in range(numsimulations):
         within_heat_flux = constraints[i,j][0] < heat_flux_constraint
         within_heat_load = constraints[i,j][1] < heat_load_constraint
@@ -217,12 +219,53 @@ for i in range(numparameters):
         within_skip = constraints[i,j][3] == False
 
         if within_heat_flux and within_heat_load and within_stability and within_skip:
-            within_constraints.append([inputs[i,j],objectives[i,j]])
+            input_value = inputs[i,j]
+            objective_value = objectives[i,j]
+            within_constraints_parameter.append([input_value,objective_value])
         else:
-            outside_constraints.append([inputs[i,j],objectives[i,j]])
+            input_value = inputs[i,j]
+            objective_value = objectives[i,j]
+            outside_constraints_parameter.append([input_value,objective_value])
+    within_constraints.append(within_constraints_parameter)
+    outside_constraints.append(outside_constraints_parameter)
 
 
-        
+#plotting input against objectives
+for i in range(numparameters):
+    input_withinconstraints = [within_constraints[i][j][0] for j in range(len(within_constraints[i]))]
+    input_outsideconstraints = [outside_constraints[i][j][0] for j in range(len(outside_constraints[i]))]
+
+    objective1_withinconstraints = [within_constraints[i][j][1][0] for j in range(len(within_constraints[i]))]
+    objective2_withinconstraints = [within_constraints[i][j][1][1] for j in range(len(within_constraints[i]))]
+    objective3_withinconstraints = [within_constraints[i][j][1][2] for j in range(len(within_constraints[i]))]
+
+    objective1_outsideconstraints = [outside_constraints[i][j][1][0] for j in range(len(outside_constraints[i]))]
+    objective2_outsideconstraints = [outside_constraints[i][j][1][1] for j in range(len(outside_constraints[i]))]
+    objective3_outsideconstraints = [outside_constraints[i][j][1][2] for j in range(len(outside_constraints[i]))]
+
+    # 3 by 1 figure with 3 subplots
+    fig, axs = plt.subplots(3, 1, figsize=(10, 10))
+    fig.suptitle('Parameter ' + str(i) + ' against objectives')
+    axs[0].scatter(input_withinconstraints, objective1_withinconstraints,color='blue', label='Within constraints')
+    axs[0].scatter(input_outsideconstraints, objective1_outsideconstraints,color='red', label='Outside constraints')
+    axs[0].set_title('Volume')
+    axs[0].set_xlabel('Parameter ' + str(i))
+    axs[0].set_ylabel('Volume')
+    axs[0].legend()
+    axs[1].scatter(input_withinconstraints, objective2_withinconstraints,color='blue', label='Within constraints')
+    axs[1].scatter(input_outsideconstraints, objective2_outsideconstraints,color='red', label='Outside constraints')
+    axs[1].set_title('L/D')
+    axs[1].set_xlabel('Parameter ' + str(i))
+    axs[1].set_ylabel('L/D')
+    axs[1].legend()
+    axs[2].scatter(input_withinconstraints, objective3_withinconstraints,color='blue', label='Within constraints')
+    axs[2].scatter(input_outsideconstraints, objective3_outsideconstraints,color='red', label='Outside constraints')
+    axs[2].set_title('Max G-load')
+    axs[2].set_xlabel('Parameter ' + str(i))
+    axs[2].set_ylabel('Max G-load')
+    axs[2].legend()
+    plt.show()
+
 
 
 
