@@ -182,11 +182,12 @@ for i in range (numparameters):
         for t in times:
             timestep = t-last_t
             aerodynamic_acceleration = dependent_variable_history[t][:3]
+            airspeed = dependent_variable_history[t][3]
             velocity = state_history[t][3:]
             velocitynorm = np.linalg.norm(velocity)
             g_load = np.linalg.norm(aerodynamic_acceleration)/9.81
             density = dependent_variable_history[t][4]
-            heat_flux = (density**(1-n)*velocitynorm**3)/(shape_parameters[0]**n)
+            heat_flux = (density**(1-n)*airspeed**3)/(shape_parameters[0]**n)
 
             drag = -np.dot(aerodynamic_acceleration,velocity)/np.linalg.norm(velocity)
             helpervec = state_history[t][:3]/np.linalg.norm(state_history[t][:3])
