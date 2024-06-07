@@ -105,26 +105,21 @@ initial_state = Util.get_initial_state(simulation_start_epoch,bodies)
 # MONTE CARLO ANALYSIS ####################################################
 ###########################################################################
 
-default_shape_parameters = [7.6983117481,
-                    2.0923385955,
-                    1.7186406196,
-                    -0.255984141,
-                    0.1158838553,
-                    0.3203083369]
+
 np.random.seed(42)
-range_per_parameter = [[0,10],
-                       [0,10],
-                       [0,5],
-                        [0,5],
+range_per_parameter = [[0,5],
+                       [2,5],
+                       [0,3],
+                        [-np.pi/2,0.],
                         [2.5,5.5],
-                        [-0.25,1],
+                        [-0.25,0.5],
                         [50,400]
                        ]
-
-inputs = np.empty((numparameters,numsimulations),dtype=object)
+invalid_inputs = []
+inputs = np.empty((numsimulations),dtype=object)
 #time_histories = np.empty((numparameters,numsimulations),dtype=object)
-objectives = np.empty((numparameters,numsimulations),dtype=object)
-constraints = np.empty((numparameters,numsimulations),dtype=object)
+objectives = np.empty((numsimulations),dtype=object)
+constraints = np.empty((numsimulations),dtype=object)
 
 parameters = np.empty((numparameters,numsimulations),dtype=float)
 
@@ -133,13 +128,19 @@ for i in range (numparameters):
     range_of_parameters = np.random.uniform(range_per_parameter[i][0],range_per_parameter[i][1],numsimulations)
     parameters[i] = range_of_parameters
 
+print(parameters[:,68])
+#print(parameters[:,100])
+
 starttime = datetime.datetime.now()
 for j in range (numsimulations):
+    if j == 68:
+        print('Starting simulation 68')
+    #    continue
     
-    shape_parameters = default_shape_parameters
     shape_parameters = parameters[:6,j]
+    if j == 68:
+        print(shape_parameters)
 
-    shape_parameters = default_shape_parameters
     capsule_density = parameters[-1,j]
 
 
@@ -154,6 +155,15 @@ for j in range (numsimulations):
                                                                 termination_settings,
                                                                 dependent_variables_to_save )
     
+    if shape_parameters[2] < 0:
+        print('Negative length')
+        invalid_inputs.append(parameters[:,j])
+        continue
+    if shape_parameters[1] < 0:
+        invalid_inputs.append(parameters[:,j])
+        print('Negative radius')
+        continue
+    
     propagator_settings.integrator_settings = integrator_settings
     
     dynamics_simulator = numerical_simulation.create_dynamics_simulator(
@@ -165,9 +175,8 @@ for j in range (numsimulations):
     state_history_array = np.array(list(state_history.values()))
     dependent_variable_history_array = np.array(list(dependent_variable_history.values()))
     times = np.array(list(state_history.keys()))
-    input_values = shape_parameters[:]
-    input_values.append(capsule_density)
-    inputs[i,j] = input_values
+    input_values = parameters[:,j]
+    inputs[j] = input_values
 
     #dependent variable will eventaully have 5 members: 
     # 3d aerodynamic acceleration,
@@ -214,8 +223,8 @@ for j in range (numsimulations):
             has_skipped = True
         last_t = t
     
-    objectives[i,j] = [mass_capsule,max_ld,max_g_load]
-    constraints[i,j] = [max_heat_flux,total_heat_load,stability,has_skipped,succesfull_completion]
+    objectives[j] = [mass_capsule,max_ld,max_g_load]
+    constraints[j] = [max_heat_flux,total_heat_load,stability,has_skipped,succesfull_completion]
     if j+1 % 100 == 0:
         print('Time for 100 simulations: ',datetime.datetime.now()-starttime)
         print('Number of simulations done: ',j+1, 'out of ',numsimulations)
@@ -225,16 +234,18 @@ within_constraints = []
 outside_constraints = []
 
 for j in range(numsimulations):
-    within_heat_flux = constraints[i,j][0] < heat_flux_constraint
-    within_heat_load = constraints[i,j][1] < heat_load_constraint
-    within_stability = constraints[i,j][2] < stability_constraint
-    within_skip = constraints[i,j][3] == False
-    succesfull_completion = constraints[i,j][4]
+    if constraints[j] == None:
+        continue
+    within_heat_flux = constraints[j][0] < heat_flux_constraint
+    within_heat_load = constraints[j][1] < heat_load_constraint
+    within_stability = constraints[j][2] < stability_constraint
+    within_skip = constraints[j][3] == False
+    succesfull_completion = constraints[j][4]
 
     if within_heat_flux and within_heat_load and within_stability and within_skip and succesfull_completion:
-        within_constraints.append([inputs[i,j],objectives[i,j]])
+        within_constraints.append([inputs[j],objectives[j]])
     else:
-        outside_constraints.append([inputs[i,j],objectives[i,j]])
+        outside_constraints.append([inputs[j],objectives[j]])
 
 savedata = [within_constraints,outside_constraints]
 
