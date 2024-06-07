@@ -586,7 +586,7 @@ rho_list = []
 
 for i in range(len(A)):
     A_i = A[i]
-    aeroG_i = LD[i]
+    aeroG_i = Gload[i]
 
     R_N_i = A_i[1]
     R_m_i = A_i[2]
