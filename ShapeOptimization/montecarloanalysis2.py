@@ -26,6 +26,8 @@ spice_interface.load_standard_kernels()
 # PARAMETERS ##############################################################
 ###########################################################################
 
+plot = True
+
 numsimulations = 1000
 numparameters = 7
 
@@ -110,7 +112,7 @@ default_shape_parameters = [7.6983117481,
                     0.1158838553,
                     0.3203083369]
 np.random.seed(42)
-range_per_parameter = [[0,5],
+range_per_parameter = [[0,10],
                        [0,10],
                        [0,5],
                         [0,5],
@@ -234,14 +236,43 @@ for j in range(numsimulations):
 
 savedata = [within_constraints,outside_constraints]
 
-with open('mcdata','wb') as f:
+with open('mcdata.dat','wb') as f:
     pickle.dump(savedata,f)
 
+if plot:
+    objective1_withinconstraints = [within_constraints[j][1][0] for j in range(len(within_constraints))]
+    objective2_withinconstraints = [within_constraints[j][1][1] for j in range(len(within_constraints))]
+    objective3_withinconstraints = [within_constraints[j][1][2] for j in range(len(within_constraints))]
 
-    
+    objective1_outsideconstraints = [outside_constraints[j][1][0] for j in range(len(outside_constraints))]
+    objective2_outsideconstraints = [outside_constraints[j][1][1] for j in range(len(outside_constraints))]
+    objective3_outsideconstraints = [outside_constraints[j][1][2] for j in range(len(outside_constraints))]
+
+    # 3 by 1 figure with 3 subplots
+    fig, axs = plt.subplots(3, 1, figsize=(10, 10))
+    #fig.suptitle('Parameter ' + str(i) + ' against objectives')
+    axs[0].scatter(objective1_withinconstraints, objective2_withinconstraints,color='blue', label='Within constraints')
+    axs[0].scatter(objective1_outsideconstraints, objective2_outsideconstraints,color='red', label='Outside constraints')
+    #axs[0].set_title('Volume')
+    axs[0].set_xlabel('Volume')
+    axs[0].set_ylabel('L/D')
+    axs[0].legend()
+    axs[1].scatter(objective2_withinconstraints, objective3_withinconstraints,color='blue', label='Within constraints')
+    axs[1].scatter(objective2_outsideconstraints, objective3_outsideconstraints,color='red', label='Outside constraints')
+    #axs[1].set_title('L/D')
+    axs[1].set_xlabel('L/D')
+    axs[1].set_ylabel('Max G-load')
+    axs[1].legend()
+    axs[2].scatter(objective1_withinconstraints, objective3_withinconstraints,color='blue', label='Within constraints')
+    axs[2].scatter(objective1_outsideconstraints, objective3_outsideconstraints,color='red', label='Outside constraints')
+    #axs[2].set_title('Max G-load')
+    axs[2].set_xlabel('Volume')
+    axs[2].set_ylabel('Max G-load')
+    axs[2].legend()
+    plt.show()    
 
 
 
 
 
-    
+        

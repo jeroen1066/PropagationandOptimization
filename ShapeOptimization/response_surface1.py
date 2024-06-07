@@ -1,6 +1,7 @@
 import numpy as np
+import picle
 
-with open('mcdata','rb') as f:
+with open('mcdata.dat','rb') as f:
     b = pickle.load(f)
 
 successful_runs = b[0]
