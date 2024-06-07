@@ -165,7 +165,9 @@ for j in range (numsimulations):
     state_history_array = np.array(list(state_history.values()))
     dependent_variable_history_array = np.array(list(dependent_variable_history.values()))
     times = np.array(list(state_history.keys()))
-    inputs[i,j] = shape_parameters
+    input_values = shape_parameters[:]
+    input_values.append(capsule_density)
+    inputs[i,j] = input_values
 
     #dependent variable will eventaully have 5 members: 
     # 3d aerodynamic acceleration,

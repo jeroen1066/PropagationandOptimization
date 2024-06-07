@@ -110,10 +110,10 @@ default_shape_parameters = [7.6983117481,
                     0.1158838553,
                     0.3203083369]
 np.random.seed(42)
-range_per_parameter = [[0,10],
+range_per_parameter = [[0,5],
                        [0,10],
-                       [0,5],
-                        [0,5],
+                       [0,7],
+                        [0,7],
                         [2.5,5.5],
                         [-0.25,1],
                         [50,400]
