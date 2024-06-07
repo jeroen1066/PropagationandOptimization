@@ -210,6 +210,8 @@ for i in range(len(successful_runs)):
         LD = np.vstack((LD,LD_i))
         Gload = np.vstack((Gload,Gload_i))
 
+
+# Mass
 K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
 K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
 K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
@@ -222,7 +224,6 @@ K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,
 K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
 K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127]
 
-# analysis
 Vol_sim = []
 Vol_mod = []
 Vol_res = []
@@ -383,6 +384,352 @@ ax2.grid()
 plt.show()
 
 
+# LD
+K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
+K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
+K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
+K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
+K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127 = np.linalg.lstsq(A, LD, rcond=None)[0]
+
+K_vals = [K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
+K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
+K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
+K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
+K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127]
+
+# analysis
+LD_sim = []
+LD_mod = []
+LD_res = []
+
+R_N_list = []
+R_m_list = []
+L_c_list = []
+theta_c_list = []
+R_s_list = []
+alpha_list = []
+rho_list = []
+
+for i in range(len(A)):
+    A_i = A[i]
+    Liftdrag_i = LD[i]
+
+    R_N_i = A_i[1]
+    R_m_i = A_i[2]
+    L_c_i = A_i[3]
+    theta_c_i = A_i[4]
+    R_s_i = A_i[5]
+    alpha_i = A_i[6]
+    rho_i = A_i[7]
+
+    LD_mod_i = 0
+    for j in range(len(A_i)):
+        LD_mod_j = A_i[j] * K_vals[j]
+        LD_mod_i = LD_mod_i + LD_mod_j
+
+    LD_res_i = LD_mod_i - Liftdrag_i
+
+    LD_sim.append(Liftdrag_i)
+    LD_mod.append(LD_mod_i)
+    LD_res.append(LD_res_i)
+
+    R_N_list.append(R_N_i)
+    R_m_list.append(R_m_i)
+    L_c_list.append(L_c_i)
+    theta_c_list.append(theta_c_i)
+    R_s_list.append(R_s_i)
+    alpha_list.append(alpha_i)
+    rho_list.append(rho_i)
+
+label1 = 'Simulated Data'
+label2 = 'Response Surface'
+label3 = 'Residuals'
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_N_list,LD_sim,color='blue',label=label1)
+ax1.scatter(R_N_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('R_N [m]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_N_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('R_N [m]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_m_list,LD_sim,color='blue',label=label1)
+ax1.scatter(R_m_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('R_m [m]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_m_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('R_m [m]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(L_c_list,LD_sim,color='blue',label=label1)
+ax1.scatter(L_c_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('L_c [m]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(L_c_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('L_c [m]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(theta_c_list,LD_sim,color='blue',label=label1)
+ax1.scatter(theta_c_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('θ_c [rad]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(theta_c_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('θ_c [rad]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_s_list,LD_sim,color='blue',label=label1)
+ax1.scatter(R_s_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('R_s [m]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_s_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('R_s [m]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(alpha_list,LD_sim,color='blue',label=label1)
+ax1.scatter(alpha_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('α [rad]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(alpha_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('α [rad]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(rho_list,LD_sim,color='blue',label=label1)
+ax1.scatter(rho_list,LD_mod,color='red',label=label2)
+ax1.set_xlabel('ρ [kg/m^3]')
+ax1.set_ylabel('L/D [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(rho_list,LD_res,color='black',label=label3)
+ax2.set_xlabel('ρ [kg/m^3]')
+ax2.set_ylabel('L/D [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+
+# Gload
+K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
+K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
+K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
+K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
+K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127 = np.linalg.lstsq(A, Gload, rcond=None)[0]
+
+K_vals = [K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
+K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
+K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
+K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
+K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127]
+
+# analysis
+Gload_sim = []
+Gload_mod = []
+Gload_res = []
+
+R_N_list = []
+R_m_list = []
+L_c_list = []
+theta_c_list = []
+R_s_list = []
+alpha_list = []
+rho_list = []
+
+for i in range(len(A)):
+    A_i = A[i]
+    aeroG_i = LD[i]
+
+    R_N_i = A_i[1]
+    R_m_i = A_i[2]
+    L_c_i = A_i[3]
+    theta_c_i = A_i[4]
+    R_s_i = A_i[5]
+    alpha_i = A_i[6]
+    rho_i = A_i[7]
+
+    Gload_mod_i = 0
+    for j in range(len(A_i)):
+        Gload_mod_j = A_i[j] * K_vals[j]
+        Gload_mod_i = Gload_mod_i + Gload_mod_j
+
+    Gload_res_i = Gload_mod_i - aeroG_i
+
+    Gload_sim.append(aeroG_i)
+    Gload_mod.append(Gload_mod_i)
+    Gload_res.append(Gload_res_i)
+
+    R_N_list.append(R_N_i)
+    R_m_list.append(R_m_i)
+    L_c_list.append(L_c_i)
+    theta_c_list.append(theta_c_i)
+    R_s_list.append(R_s_i)
+    alpha_list.append(alpha_i)
+    rho_list.append(rho_i)
+
+label1 = 'Simulated Data'
+label2 = 'Response Surface'
+label3 = 'Residuals'
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_N_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(R_N_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('R_N [m]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_N_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('R_N [m]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_m_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(R_m_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('R_m [m]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_m_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('R_m [m]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(L_c_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(L_c_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('L_c [m]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(L_c_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('L_c [m]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(theta_c_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(theta_c_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('θ_c [rad]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(theta_c_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('θ_c [rad]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_s_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(R_s_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('R_s [m]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_s_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('R_s [m]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(alpha_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(alpha_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('α [rad]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(alpha_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('α [rad]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(rho_list,Gload_sim,color='blue',label=label1)
+ax1.scatter(rho_list,Gload_mod,color='red',label=label2)
+ax1.set_xlabel('ρ [kg/m^3]')
+ax1.set_ylabel('G-load [-]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(rho_list,Gload_res,color='black',label=label3)
+ax2.set_xlabel('ρ [kg/m^3]')
+ax2.set_ylabel('G-load [-]')
+ax2.legend()
+ax2.grid()
+plt.show()
 
 
 
