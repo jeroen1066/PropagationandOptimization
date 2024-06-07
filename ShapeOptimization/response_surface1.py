@@ -1,10 +1,17 @@
 import numpy as np
-import picle
+import pickle
+import os
+import matplotlib.pyplot as plt
 
-with open('mcdata.dat','rb') as f:
+data_file = os.getcwd().replace(os.path.basename(os.getcwd()),'') + 'mcdata.dat'
+
+with open(data_file,'rb') as f:
     b = pickle.load(f)
 
 successful_runs = b[0]
+
+#def plot_R_N(K_vals,A):
+
 
 for i in range(len(successful_runs)):
 
@@ -198,16 +205,116 @@ for i in range(len(successful_runs)):
         LD = LD_i
         Gload = Gload_i
     else:
-        np.vstack((A,A_i))
-        np.vstack((volume,volume_i))
-        np.vstack((LD,LD_i))
-        np.vstack((Gload,Gload_i))
+        A = np.vstack((A,A_i))
+        volume = np.vstack((volume,volume_i))
+        LD = np.vstack((LD,LD_i))
+        Gload = np.vstack((Gload,Gload_i))
 
 K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
 K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
 K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
 K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
 K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127 = np.linalg.lstsq(A, volume, rcond=None)[0]
+
+K_vals = [K0,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,K11,K12,K13,K14,K15,K16,K17,K18,K19,K20,K21,K22,K23,K24,K25,K26,K27,K28,K29,K30,K31,\
+K32,K33,K34,K35,K36,K37,K38,K39,K40,K41,K42,K43,K44,K45,K46,K47,K48,K49,K50,K51,K52,K53,K54,K55,K56,K57,K58,K59,K60,\
+K61,K62,K63,K64,K65,K66,K67,K68,K69,K70,K71,K72,K73,K74,K75,K76,K77,K78,K79,K80,K81,K82,K83,K84,K85,K86,K87,K88,K89,\
+K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,K108,K109,K110,K111,K112,K113,K114,\
+K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127]
+
+# analysis
+
+'''
+# 1 variable terms
+for i in range(1,8):
+    K_i = K_vals[i]
+
+    x_vals = []
+    V_response = []
+    V = []
+    for j in range(len(A)):
+        x = A[j][i]
+        x_vals.append(x)
+
+        V_response_j = x * K_i
+        V_response.append(V_response_j)
+
+        V_j = volume[j][0]
+        V.append(V_j)
+
+    plt.scatter(x_vals,V)
+    plt.scatter(x_vals,V_response)
+    plt.show()
+'''
+
+Vol_sim = []
+Vol_mod = []
+
+R_N_list = []
+R_m_list = []
+L_c_list = []
+theta_c_list = []
+R_s_list = []
+alpha_list = []
+rho_list = []
+
+for i in range(len(A)):
+    A_i = A[i]
+    Vol_i = volume[i]
+
+    R_N_i = A_i[1]
+    R_m_i = A_i[2]
+    L_c_i = A_i[3]
+    theta_c_i = A_i[4]
+    R_s_i = A_i[5]
+    alpha_i = A_i[6]
+    rho_i = A_i[7]
+
+    Vol_mod_i = 0
+    for j in range(len(A_i)):
+        Vol_mod_j = A_i[j] * K_vals[j]
+        Vol_mod_i = Vol_mod_i + Vol_mod_j
+
+    Vol_sim.append(Vol_i)
+    Vol_mod.append(Vol_mod_i)
+
+    R_N_list.append(R_N_i)
+    R_m_list.append(R_m_i)
+    L_c_list.append(L_c_i)
+    theta_c_list.append(theta_c_i)
+    R_s_list.append(R_s_i)
+    alpha_list.append(alpha_i)
+    rho_list.append(rho_i)
+
+plt.scatter(R_N_list,Vol_sim)
+plt.scatter(R_N_list,Vol_mod)
+plt.show()
+
+plt.scatter(R_m_list,Vol_sim)
+plt.scatter(R_m_list,Vol_mod)
+plt.show()
+
+plt.scatter(L_c_list,Vol_sim)
+plt.scatter(L_c_list,Vol_mod)
+plt.show()
+
+plt.scatter(theta_c_list,Vol_sim)
+plt.scatter(theta_c_list,Vol_mod)
+plt.show()
+
+plt.scatter(R_s_list,Vol_sim)
+plt.scatter(R_s_list,Vol_mod)
+plt.show()
+
+plt.scatter(alpha_list,Vol_sim)
+plt.scatter(alpha_list,Vol_mod)
+plt.show()
+
+plt.scatter(rho_list,Vol_sim)
+plt.scatter(rho_list,Vol_mod)
+plt.show()
+
+
 
 
 
