@@ -223,32 +223,9 @@ K90,K91,K92,K93,K94,K95,K96,K97,K98,K99,K100,K101,K102,K103,K104,K105,K106,K107,
 K115,K116,K117,K118,K119,K120,K121,K122,K123,K124,K125,K126,K127]
 
 # analysis
-
-'''
-# 1 variable terms
-for i in range(1,8):
-    K_i = K_vals[i]
-
-    x_vals = []
-    V_response = []
-    V = []
-    for j in range(len(A)):
-        x = A[j][i]
-        x_vals.append(x)
-
-        V_response_j = x * K_i
-        V_response.append(V_response_j)
-
-        V_j = volume[j][0]
-        V.append(V_j)
-
-    plt.scatter(x_vals,V)
-    plt.scatter(x_vals,V_response)
-    plt.show()
-'''
-
 Vol_sim = []
 Vol_mod = []
+Vol_res = []
 
 R_N_list = []
 R_m_list = []
@@ -275,8 +252,11 @@ for i in range(len(A)):
         Vol_mod_j = A_i[j] * K_vals[j]
         Vol_mod_i = Vol_mod_i + Vol_mod_j
 
+    Vol_res_i = Vol_mod_i - Vol_i
+
     Vol_sim.append(Vol_i)
     Vol_mod.append(Vol_mod_i)
+    Vol_res.append(Vol_res_i)
 
     R_N_list.append(R_N_i)
     R_m_list.append(R_m_i)
@@ -286,33 +266,122 @@ for i in range(len(A)):
     alpha_list.append(alpha_i)
     rho_list.append(rho_i)
 
-plt.scatter(R_N_list,Vol_sim)
-plt.scatter(R_N_list,Vol_mod)
+label1 = 'Simulated Data'
+label2 = 'Response Surface'
+label3 = 'Residuals'
+
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_N_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(R_N_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('R_N [m]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_N_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('R_N [m]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
 
-plt.scatter(R_m_list,Vol_sim)
-plt.scatter(R_m_list,Vol_mod)
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_m_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(R_m_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('R_m [m]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_m_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('R_m [m]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
 
-plt.scatter(L_c_list,Vol_sim)
-plt.scatter(L_c_list,Vol_mod)
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(L_c_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(L_c_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('L_c [m]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(L_c_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('L_c [m]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
 
-plt.scatter(theta_c_list,Vol_sim)
-plt.scatter(theta_c_list,Vol_mod)
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(theta_c_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(theta_c_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('θ_c [rad]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(theta_c_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('θ_c [rad]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
 
-plt.scatter(R_s_list,Vol_sim)
-plt.scatter(R_s_list,Vol_mod)
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(R_s_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(R_s_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('R_s [m]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(R_s_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('R_s [m]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
 
-plt.scatter(alpha_list,Vol_sim)
-plt.scatter(alpha_list,Vol_mod)
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(alpha_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(alpha_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('α [rad]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(alpha_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('α [rad]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
 
-plt.scatter(rho_list,Vol_sim)
-plt.scatter(rho_list,Vol_mod)
+fig = plt.figure(figsize=(8, 8))
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
+ax1.scatter(rho_list,Vol_sim,color='blue',label=label1)
+ax1.scatter(rho_list,Vol_mod,color='red',label=label2)
+ax1.set_xlabel('ρ [kg/m^3]')
+ax1.set_ylabel('m [kg]')
+ax1.legend()
+ax1.grid()
+ax2.scatter(rho_list,Vol_res,color='black',label=label3)
+ax2.set_xlabel('ρ [kg/m^3]')
+ax2.set_ylabel('m [kg]')
+ax2.legend()
+ax2.grid()
 plt.show()
+
 
 
 
