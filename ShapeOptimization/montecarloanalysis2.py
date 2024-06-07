@@ -28,7 +28,7 @@ spice_interface.load_standard_kernels()
 
 plot = True
 
-numsimulations = 1000
+numsimulations = 5000
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
