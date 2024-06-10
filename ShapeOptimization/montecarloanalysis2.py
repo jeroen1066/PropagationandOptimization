@@ -104,7 +104,14 @@ initial_state = Util.get_initial_state(simulation_start_epoch,bodies)
 ###########################################################################
 # MONTE CARLO ANALYSIS ####################################################
 ###########################################################################
-
+[[0,5],
+[2,5],
+[0,3],
+[-np.pi/2,0.],
+[2.5,5.5],
+[-0.25,0.5],
+[50,400]
+]
 
 np.random.seed(42)
 range_per_parameter = [[0,5],
@@ -243,9 +250,9 @@ for j in range(numsimulations):
     succesfull_completion = constraints[j][4]
 
     if within_heat_flux and within_heat_load and within_stability and within_skip and succesfull_completion:
-        within_constraints.append([inputs[j],objectives[j]])
+        within_constraints.append([inputs[j],objectives[j],constraints[j]])
     else:
-        outside_constraints.append([inputs[j],objectives[j]])
+        outside_constraints.append([inputs[j],objectives[j],constraints[j]])
 
 savedata = [within_constraints,outside_constraints]
 

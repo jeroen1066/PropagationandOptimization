@@ -1,6 +1,9 @@
 *.pyc
 *.iml
 *.xml
-*.dat
+
 *idea/
 */SimulationOutput/*
+.gitignore
+lookup.py
+*.png

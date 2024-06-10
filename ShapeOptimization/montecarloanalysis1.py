@@ -22,11 +22,13 @@ import pickle
 
 spice_interface.load_standard_kernels()
 
+parameternames = ['Nose radius', 'Middle radius', 'Rear length', 'Rear angle', 'Side radius','Angle of Attack','Density']
+
 ###########################################################################
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 100
+numsimulations = 200
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
@@ -250,26 +252,61 @@ for i in range(numparameters):
     objective3_outsideconstraints = [outside_constraints[i][j][1][2] for j in range(len(outside_constraints[i]))]
 
     # 3 by 1 figure with 3 subplots
-    fig, axs = plt.subplots(3, 1, figsize=(10, 10))
-    fig.suptitle('Parameter ' + str(i) + ' against objectives')
+    fig, axs = plt.subplots(1, 3, figsize=(10, 5))
+    fig.suptitle('Parameter ' + parameternames[i] + ' against objectives')
     axs[0].scatter(input_withinconstraints, objective1_withinconstraints,color='blue', label='Within constraints')
     axs[0].scatter(input_outsideconstraints, objective1_outsideconstraints,color='red', label='Outside constraints')
     axs[0].set_title('Volume')
-    axs[0].set_xlabel('Parameter ' + str(i))
+    axs[0].set_xlabel('Parameter ' + parameternames[i])
     axs[0].set_ylabel('Volume')
     axs[0].legend()
+    axs[0].grid()
     axs[1].scatter(input_withinconstraints, objective2_withinconstraints,color='blue', label='Within constraints')
     axs[1].scatter(input_outsideconstraints, objective2_outsideconstraints,color='red', label='Outside constraints')
     axs[1].set_title('L/D')
-    axs[1].set_xlabel('Parameter ' + str(i))
+    axs[1].set_xlabel('Parameter ' + parameternames[i])
     axs[1].set_ylabel('L/D')
     axs[1].legend()
+    axs[1].grid()
     axs[2].scatter(input_withinconstraints, objective3_withinconstraints,color='blue', label='Within constraints')
     axs[2].scatter(input_outsideconstraints, objective3_outsideconstraints,color='red', label='Outside constraints')
     axs[2].set_title('Max G-load')
-    axs[2].set_xlabel('Parameter ' + str(i))
+    axs[2].set_xlabel('Parameter ' + parameternames[i])
     axs[2].set_ylabel('Max G-load')
     axs[2].legend()
+    axs[2].grid()
+    fig.savefig('Parameter_' + parameternames[i] + '_against objectives_single' + '.png')
+    plt.show()
+
+    #plot constraints against inputs:
+    fig, axs = plt.subplots(1, 3, figsize=(10, 5))
+    fig.suptitle('Parameter ' + parameternames[i] + ' against constraints')
+    heat_flux = [constraints[i][j][0] for j in range(numsimulations)]
+    heat_load = [constraints[i][j][1] for j in range(numsimulations)]
+    stability = [constraints[i][j][2] for j in range(numsimulations)]
+    skipped = [constraints[i][j][3] for j in range(numsimulations)]
+    succesfull = [constraints[i][j][4] for j in range(numsimulations)]
+    axs[0].scatter(inputs[i], heat_flux)
+    axs[0].set_title('Heat flux')
+    axs[0].set_xlabel('Parameter ' + parameternames[i])
+    axs[0].set_ylabel('Heat flux')
+    axs[0].grid()
+    axs[1].scatter(inputs[i], heat_load)
+    axs[1].set_title('Heat load')
+    axs[1].set_xlabel('Parameter ' +parameternames[i])
+    axs[1].set_ylabel('Heat load')
+    axs[1].grid()
+    axs[2].scatter(inputs[i], skipped)
+    axs[2].set_title('Skipped')
+    axs[2].set_xlabel('Parameter ' + parameternames[i])
+    axs[2].set_ylabel('Skipped')
+    axs[2].grid()
+    #axs[3].scatter(inputs[i], succesfull)
+    #axs[3].set_title('Succesfull')
+    #axs[3].set_xlabel('Parameter ' + parameternames[i])
+    #axs[3].set_ylabel('Succesfull')
+    #axs[3].grid()
+    fig.savefig('Parameter_' + parameternames[i] + ' against_constraints_single' + '.png')
     plt.show()
 
 
