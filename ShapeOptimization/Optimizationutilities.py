@@ -50,7 +50,6 @@ class CapsuleEntryProblem:
         self.termination_settings = termination_settings
         self.bodies = bodies
         self.bounds = bounds
-        self.dependent_variables_to_save = Util.get_dependent_variable_save_settings()
 
         
     def get_bounds(self)->list[list[float]]:
@@ -59,24 +58,33 @@ class CapsuleEntryProblem:
     def get_number_of_parameters(self)->int:
         return len(self.bounds)
     
+    def get_nobj(self)->int:
+        return 3
+    
     def fitness(self, parameters):
         shape_parameters = parameters[:6]
         density = parameters[6]
         # Create vehicle
-        Util.add_capsule_to_body_system(self.bodies,
+
+        bodies = self.bodies()
+        termination_settings = self.termination_settings()
+        integrator_settings = self.integrator_settings()
+
+        Util.add_capsule_to_body_system(bodies,
                             shape_parameters,
                             density)
+        self.dependent_variables_to_save = Util.get_dependent_variable_save_settings()
     
         propagator_settings = Util.get_propagator_settings(shape_parameters,
-                                                                self.bodies,
+                                                                bodies,
                                                                 self.simulation_start_epoch,
-                                                                self.termination_settings,
+                                                                termination_settings,
                                                                 self.dependent_variables_to_save )
 
-        propagator_settings.integrator_settings = self.integrator_settings
+        propagator_settings.integrator_settings = integrator_settings
     
         dynamics_simulator = numerical_simulation.create_dynamics_simulator(
-        self.bodies,
+        bodies,
         propagator_settings )
         state_history = dynamics_simulator.state_history
         dependent_variable_history = dynamics_simulator.dependent_variable_history
@@ -91,7 +99,7 @@ class CapsuleEntryProblem:
         total_heat_load = 0
         has_skipped = False
         stability = -1000
-        mass_capsule = self.bodies.get_body('Capsule').mass
+        mass_capsule = bodies.get_body('Capsule').mass
         volume_capsule = mass_capsule/density
         last_t = times[0]
         succesfull_completion = dynamics_simulator.integration_completed_successfully
@@ -198,12 +206,15 @@ class optimization:
             raise ValueError('Optimizer not recognized, invalid input name')
         
     def optimize(self,numpops:int,numgens:int,numrepeats:int,seeds:list[float])->None:
+        integrator = lambda: self.integrator_settings
+        termination = lambda: self.termination_settings
+        bodies = lambda: self.bodies
 
-        problem_definition = lambda: CapsuleEntryProblem(self.simulation_start_epoch,
+        problem_definition = CapsuleEntryProblem(self.simulation_start_epoch,
                                              self.initial_state,
-                                             self.integrator_settings,
-                                             self.termination_settings,
-                                             self.bodies,
+                                             integrator,
+                                             termination,
+                                             bodies,
                                              self.range_per_parameter)
         problem = pg.problem(problem_definition)
 

@@ -45,5 +45,7 @@ range_per_parameter = [[0,5],
                         [50,400]
                        ]
 
-opt = OptUtil.optimization(range_per_parameter, optimizer_name)
+bounds = [[0,2,0,-np.pi/2,2.5,-0.25,50],[5,5,3,0,5.5,0.5,400]]
+
+opt = OptUtil.optimization(bounds, optimizer_name)
 opt.optimize(num_pops,num_generations,num_repeats,seeds)
