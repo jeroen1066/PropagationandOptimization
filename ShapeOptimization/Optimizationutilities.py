@@ -50,6 +50,9 @@ class CapsuleEntryProblem:
         self.termination_settings = termination_settings
         self.bodies = bodies
         self.bounds = bounds
+        self.constraints = [5e6,2e8]
+        dependent_variables_to_save = Util.get_dependent_variable_save_settings()
+        self.dependent_variables_to_save = lambda: dependent_variables_to_save
 
         
     def get_bounds(self)->list[list[float]]:
@@ -73,13 +76,14 @@ class CapsuleEntryProblem:
         Util.add_capsule_to_body_system(bodies,
                             shape_parameters,
                             density)
-        self.dependent_variables_to_save = Util.get_dependent_variable_save_settings()
+        
+        dependent_variables_to_save = self.dependent_variables_to_save()
     
         propagator_settings = Util.get_propagator_settings(shape_parameters,
                                                                 bodies,
                                                                 self.simulation_start_epoch,
                                                                 termination_settings,
-                                                                self.dependent_variables_to_save )
+                                                                dependent_variables_to_save )
 
         propagator_settings.integrator_settings = integrator_settings
     
@@ -134,7 +138,14 @@ class CapsuleEntryProblem:
             last_t = t
 
         fitness = np.array([mass_capsule,max_ld,max_g_load])
+        if not succesfull_completion or has_skipped:
+            fitness += 1e99
+        if max_heat_flux > self.constraints[0]:
+            fitness *= max_heat_flux/self.constraints[0]*100
+        if total_heat_load > self.constraints[1]:
+            fitness *= total_heat_load/self.constraints[1]*100
 
+        
         return fitness
     
 class optimization:
