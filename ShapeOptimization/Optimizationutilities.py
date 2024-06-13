@@ -40,7 +40,7 @@ class CapsuleEntryProblem:
             initial_state:np.ndarray,
             integrator_settings:numerical_simulation.propagation_setup.integrator.IntegratorSettings,
             termination_settings :numerical_simulation.propagation_setup.propagator.PropagationTerminationSettings,
-            bodies:environment_setup.SystemOfBodies,
+            bodies:environment.SystemOfBodies,
             bounds:list[list[float]]
 
         )->None:
@@ -59,7 +59,7 @@ class CapsuleEntryProblem:
     def get_number_of_parameters(self)->int:
         return len(self.bounds)
     
-    def fitness(self, parameters:list[float])->list[float]:
+    def fitness(self, parameters):
         shape_parameters = parameters[:6]
         density = parameters[6]
         # Create vehicle
@@ -125,7 +125,7 @@ class CapsuleEntryProblem:
                 has_skipped = True
             last_t = t
 
-        fitness = [mass_capsule,max_ld,max_g_load]
+        fitness = np.array([mass_capsule,max_ld,max_g_load])
 
         return fitness
     
@@ -181,13 +181,6 @@ class optimization:
 
         self.initial_state = Util.get_initial_state(self.simulation_start_epoch,self.bodies)
         self.range_per_parameter = range_per_parameter
-
-        self.problem = CapsuleEntryProblem(self.simulation_start_epoch,
-                                             self.initial_state,
-                                             self.integrator_settings,
-                                             self.termination_settings,
-                                             self.bodies,
-                                             range_per_parameter)
         
         if optimizer_name == 'ihs':
             self.optimizer = pg.ihs
@@ -205,7 +198,14 @@ class optimization:
             raise ValueError('Optimizer not recognized, invalid input name')
         
     def optimize(self,numpops:int,numgens:int,numrepeats:int,seeds:list[float])->None:
-        problem = pg.problem(self.problem)
+
+        problem_definition = lambda: CapsuleEntryProblem(self.simulation_start_epoch,
+                                             self.initial_state,
+                                             self.integrator_settings,
+                                             self.termination_settings,
+                                             self.bodies,
+                                             self.range_per_parameter)
+        problem = pg.problem(problem_definition)
 
         for i in range(numrepeats):
 
