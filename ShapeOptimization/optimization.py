@@ -30,10 +30,10 @@ spice_interface.load_standard_kernels()
 #optimizer names are ihs, nsga2, moead, moead_gen, maco, nspso
 #seeds needs to be equal size to num_repeats
 
-optimizer_name = 'moead'
+optimizer_name = 'ihs'
 num_repeats = 4
 num_generations = 25
-num_pops = 45
+num_pops = 44
 seeds = [42, 84, 144, 169]
 
 range_per_parameter = [[0,5],
@@ -41,11 +41,11 @@ range_per_parameter = [[0,5],
                        [0,3],
                         [-np.pi/2,0.],
                         [2.5,5.5],
-                        [-0.25,0.5],
+                        [0,0.5],
                         [50,400]
                        ]
 
-bounds = [[0,2,0,-np.pi/2,2.5,-0.25,50],[5,5,3,0,5.5,0.5,400]]
+bounds = [[0,2,0,-np.pi/2,2.5,0.0,50],[5,5,3,0,5.5,0.5,400]]
 
 opt = OptUtil.optimization(bounds, optimizer_name)
 opt.optimize(num_pops,num_generations,num_repeats,seeds)
