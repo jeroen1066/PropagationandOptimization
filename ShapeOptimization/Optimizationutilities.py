@@ -138,8 +138,10 @@ class CapsuleEntryProblem:
             last_t = t
 
         fitness = np.array([1e5/mass_capsule,1/(max_ld+0.01),max_g_load])
+        if np.any(fitness == np.nan):
+            fitness = np.array([1e10,1e10,1e10])
         if not succesfull_completion or has_skipped:
-            fitness += 1e99
+            fitness += 1e10
         if max_heat_flux > self.constraints[0]:
             fitness *= max_heat_flux/self.constraints[0]*100
         if total_heat_load > self.constraints[1]:
@@ -234,12 +236,17 @@ class optimization:
         for i in range(numrepeats):
 
             seed = seeds[i]
-            algo = pg.algorithm(self.optimizer(seed=seed))
+            
+            if self.optimizer == pg.maco:
+                algo = pg.algorithm(self.optimizer(seed=seed,ker=numpops))
+            else:
+                algo = pg.algorithm(self.optimizer(seed=seed))
             pop = pg.population(problem,numpops,seed=seed)
             results_this_repeat = []
 
             for j in range(numgens):
                 pop = algo.evolve(pop)
+                print('\n\n\n\n\n\n\n\n\nIT WORKS\n\n\n\n\n\n\n\n')
                 results_this_repeat.append(pop.get_f())
             self.results_per_generation.append(results_this_repeat)
 
