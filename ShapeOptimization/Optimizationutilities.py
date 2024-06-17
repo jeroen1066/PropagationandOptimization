@@ -137,7 +137,7 @@ class CapsuleEntryProblem:
                 has_skipped = True
             last_t = t
 
-        fitness = np.array([mass_capsule,max_ld,max_g_load])
+        fitness = np.array([1e5/mass_capsule,1/(max_ld+0.01),max_g_load])
         if not succesfull_completion or has_skipped:
             fitness += 1e99
         if max_heat_flux > self.constraints[0]:
@@ -217,6 +217,8 @@ class optimization:
             raise ValueError('Optimizer not recognized, invalid input name')
         
     def optimize(self,numpops:int,numgens:int,numrepeats:int,seeds:list[float])->None:
+        self.results = []
+        self.results_per_generation = []
         integrator = lambda: self.integrator_settings
         termination = lambda: self.termination_settings
         bodies = lambda: self.bodies
@@ -234,10 +236,14 @@ class optimization:
             seed = seeds[i]
             algo = pg.algorithm(self.optimizer(seed=seed))
             pop = pg.population(problem,numpops,seed=seed)
+            results_this_repeat = []
 
             for j in range(numgens):
                 pop = algo.evolve(pop)
+                results_this_repeat.append(pop.get_f())
+            self.results_per_generation.append(results_this_repeat)
 
+            self.results.append(pop)
         return None
         
     def plot(self)->None:

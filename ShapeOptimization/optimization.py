@@ -31,10 +31,10 @@ spice_interface.load_standard_kernels()
 #seeds needs to be equal size to num_repeats
 
 optimizer_name = 'moead'
-num_repeats = 5
-num_generations = 5
+num_repeats = 4
+num_generations = 25
 num_pops = 45
-seeds = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61]
+seeds = [42, 84, 144, 169]
 
 range_per_parameter = [[0,5],
                        [2,5],
@@ -49,3 +49,19 @@ bounds = [[0,2,0,-np.pi/2,2.5,-0.25,50],[5,5,3,0,5.5,0.5,400]]
 
 opt = OptUtil.optimization(bounds, optimizer_name)
 opt.optimize(num_pops,num_generations,num_repeats,seeds)
+results = opt.results
+results_per_generation = opt.results_per_generation
+
+results_to_store = []
+
+for i in range(num_repeats):
+    x = results[i].get_x()
+    y = results[i].get_f()
+    y_per_gen = results_per_generation[i]
+
+    results_to_store.append([x,y,y_per_gen])
+
+
+filename = 'results/' + optimizer_name + '.dat'
+file = open(filename,'wb')
+pickle.dump(results_to_store,file)
