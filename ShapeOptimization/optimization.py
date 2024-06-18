@@ -30,7 +30,7 @@ spice_interface.load_standard_kernels()
 #optimizer names are ihs, nsga2, moead, moead_gen, maco, nspso
 #seeds needs to be equal size to num_repeats
 
-optimizer_name = 'moead'
+optimizer_name = 'maco'
 num_repeats = 4
 num_generations = 25
 num_pops = 45
