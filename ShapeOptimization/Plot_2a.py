@@ -11,8 +11,6 @@ fig, axs = plt.subplots(2,3)
 
 for i in range(6):
     optimizer_name = optimizer_names[i]
-    if optimizer_name == 'moead_gen':
-        continue
     data_file = 'results/' + optimizer_name + '.dat'
     file = open(data_file,'rb')
     data = pickle.load(file)
@@ -33,8 +31,6 @@ plt.show()
 fig, axs = plt.subplots(2,3)
 for i in range(6):
     optimizer_name = optimizer_names[i]
-    if optimizer_name == 'moead_gen':
-        continue
     data_file = 'results/' + optimizer_name + '.dat'
     file = open(data_file,'rb')
     data = pickle.load(file)
