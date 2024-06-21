@@ -197,18 +197,34 @@ class optimization:
         self.initial_state = Util.get_initial_state(self.simulation_start_epoch, self.bodies)
         self.range_per_parameter = range_per_parameter
 
-        if optimizer_name == 'ihs':
+        if optimizer_name == 'gaco':
+            self.optimizer = pg.gaco
+        elif optimizer_name == 'de':
+            self.optimizer = pg.de
+        elif optimizer_name == 'sade':
+            self.optimizer = pg.sade
+        elif optimizer_name == 'de1220':
+            self.optimizer = pg.de1220
+        elif optimizer_name == 'gwo':
+            self.optimizer = pg.gwo
+        elif optimizer_name == 'ihs':
             self.optimizer = pg.ihs
-        elif optimizer_name == 'nsga2':
-            self.optimizer = pg.nsga2
-        elif optimizer_name == 'moead':
-            self.optimizer = pg.moead
-        elif optimizer_name == 'moead_gen':
-            self.optimizer = pg.moead_gen
-        elif optimizer_name == 'maco':
-            self.optimizer = pg.maco
-        elif optimizer_name == 'nspso':
-            self.optimizer = pg.nspso
+        elif optimizer_name == 'pso':
+            self.optimizer = pg.pso
+        elif optimizer_name == 'pso_gen':
+            self.optimizer = pg.pso_gen
+        elif optimizer_name == 'sea':
+            self.optimizer = pg.sea
+        elif optimizer_name == 'sga':
+            self.optimizer = pg.sga
+        elif optimizer_name == 'simulated_annealing':
+            self.optimizer = pg.simulated_annealing
+        elif optimizer_name == 'bee_colony':
+            self.optimizer = pg.bee_colony
+        elif optimizer_name == 'cmaes':
+            self.optimizer = pg.cmaes
+        elif optimizer_name == 'xnes':
+            self.optimizer = pg.xnes
         else:
             raise ValueError('Optimizer not recognized, invalid input name')
 

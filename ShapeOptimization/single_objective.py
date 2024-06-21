@@ -13,7 +13,7 @@ from tudatpy.kernel.math import interpolators
 
 # Problem-specific imports
 import CapsuleEntryUtilities as Util
-import Optimizationutilities_single as OptUtil
+import Optimisationutilities_single as OptUtil
 
 # General python imports
 import numpy as np
@@ -27,14 +27,14 @@ spice_interface.load_standard_kernels()
 
 
 #do optimization
-#optimizer names are ihs, nsga2, moead, moead_gen, maco, nspso
+#optimizer names: gaco, de, sade, de1220, gwo, ihs, pso, pso_gen, sea, sga, simulated_annealing, bee_colony, cmaes, xnes
 #seeds needs to be equal size to num_repeats
 
-optimizer_name = 'maco'
-num_repeats = 4
-num_generations = 25
-num_pops = 45
-seeds = [42, 84, 144, 169]
+optimizer_name = 'gaco'
+num_repeats = 2
+num_generations = 10
+num_pops = 63
+seeds = [42,84]
 
 range_per_parameter = [[0,5],
                        [2,5],
