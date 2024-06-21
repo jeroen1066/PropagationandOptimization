@@ -30,7 +30,7 @@ spice_interface.load_standard_kernels()
 #optimizer names are ihs, nsga2, moead, moead_gen, maco, nspso
 #seeds needs to be equal size to num_repeats
 
-optimizer_name = 'maco'
+optimizer_name = 'moead_gen'
 num_repeats = 4
 num_generations = 25
 num_pops = 45
@@ -62,6 +62,6 @@ for i in range(num_repeats):
     results_to_store.append([x,y,y_per_gen])
 
 
-filename = 'results/' + optimizer_name + '.dat'
+filename = 'ShapeOptimization/results/' + optimizer_name + '.dat'
 file = open(filename,'wb')
 pickle.dump(results_to_store,file)
