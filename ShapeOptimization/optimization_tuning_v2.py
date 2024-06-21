@@ -13,7 +13,7 @@ from tudatpy.kernel.math import interpolators
 
 # Problem-specific imports
 import CapsuleEntryUtilities as Util
-import Optimizationutilities_tuning as OptUtil
+import Optimizationutilities_tuning_v2 as OptUtil
 
 # General python imports
 import numpy as np
