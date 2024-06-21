@@ -58,6 +58,8 @@ test_for_F = True
 test_for_eta_m = True
 test_for_realb = True
 
+save_directory = 'ShapeOptimization/results/tuning_v1/'
+
 range_per_parameter = [[0,5],
                        [2,5],
                        [0,3],
@@ -89,12 +91,12 @@ if test_for_seed:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'.dat' 
+        filename = save_directory + optimizer_name + '_seed_' + str(test_seed) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -119,12 +121,12 @@ if test_for_generations:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_gens_' + str(test_generations) +'.dat' 
+        filename = save_directory + optimizer_name + '_gens_' + str(test_generations) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -149,12 +151,12 @@ if test_for_pops:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_pops_' + str(test_pops) +'.dat' 
+        filename = save_directory + optimizer_name + '_pops_' + str(test_pops) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -179,12 +181,12 @@ if test_for_neighbours:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_neighbours_' + str(test_neighbours) +'.dat' 
+        filename = save_directory + optimizer_name + '_neighbours_' + str(test_neighbours) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -209,12 +211,12 @@ if test_for_CR:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_CR_' + str(test_CR) +'.dat' 
+        filename = save_directory + optimizer_name + '_CR_' + str(test_CR) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -239,12 +241,12 @@ if test_for_F:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_F_' + str(test_F) +'.dat' 
+        filename = save_directory + optimizer_name + '_F_' + str(test_F) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -269,12 +271,12 @@ if test_for_eta_m:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_eta_m_' + str(test_eta_m) +'.dat' 
+        filename = save_directory + optimizer_name + '_eta_m_' + str(test_eta_m) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
@@ -299,12 +301,12 @@ if test_for_realb:
 
         results_to_store.append([x,y])
 
-        filename = 'ShapeOptimization/results/tuning/' + optimizer_name + '_realb_' + str(test_realb) +'.dat' 
+        filename = save_directory + optimizer_name + '_realb_' + str(test_realb) +'.dat' 
         file = open(filename,'wb')
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = 'ShapeOptimization/results/tuning/' + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
+        filename_ancillary = save_directory + optimizer_name + '_seed_' + str(test_seed) +'_ancillary.dat'
         ancillary_data = [simulation_duration_tested]
         file = open(filename_ancillary,'wb')
         pickle.dump(ancillary_data,file)
