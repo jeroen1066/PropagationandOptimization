@@ -13,7 +13,7 @@ from tudatpy.kernel.math import interpolators
 
 # Problem-specific imports
 import CapsuleEntryUtilities as Util
-import Optimizationutilities_tuning_v1 as OptUtil
+import Optimizationutilities_tuning_v1_maco as OptUtil
 
 # General python imports
 import numpy as np
@@ -28,7 +28,7 @@ spice_interface.load_standard_kernels()
 optimizer_name = 'maco'
 nominal_seed = 42  
 nominal_generations = 50
-nominal_populations = 75
+nominal_populations = 100
 
 nominal_kernel = 63
 nominal_convergence_speed = 1
@@ -39,11 +39,11 @@ nominal_focus = 0.0
 
 seeds_to_test = [42, 84, 144, 169, 74, 29, 60, 1745, 1480025]
 generations_to_test = [25, 50, 75, 100, 150]
-pops_to_test = [30, 50, 66, 78, 100, 150]
+pops_to_test = [30, 50, 75, 100, 150]
 
 kernel_to_test = [10, 30, 50, 70, 90]
 convergence_speed_to_test = [0.5, 1, 1.5, 2, 2.5]
-threshold_to_test = [1, 1.5, 2, 2.5, 5, 10]
+threshold_to_test = [1, 2,  5, 10, 20]
 std_convergence_speed_to_test = [3, 5, 7, 9, 11, 15, 21]
 eval_stop_to_test = [50000, 75000, 100000, 125000, 150000, 200000, 300000]
 focus_to_test = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0]
@@ -141,7 +141,7 @@ if test_for_generations:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_gens_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_gens_' + str(test_generations) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -171,7 +171,7 @@ if test_for_pops:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_pops_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_pops_' + str(test_pops) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -201,7 +201,7 @@ if test_for_kernel:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_kernel_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_kernel_' + str(test_kernel) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -231,7 +231,7 @@ if test_for_convergence_speed:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_q_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_q_' + str(test_convergence_speed) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -261,7 +261,7 @@ if test_for_threshold:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_threshold_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_threshold_' + str(test_threshold) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -291,7 +291,7 @@ if test_for_std_convergence_speed:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_n_gen_mark_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_n_gen_mark_' + str(test_std_convergence_speed) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -321,7 +321,7 @@ if test_for_eval_stop:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_evalstop_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_evalstop_' + str(test_eval_stop) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -351,7 +351,7 @@ if test_for_focus:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_focus_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_focus_' + str(test_focus) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
