@@ -19,6 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import pickle
+import time
 
 import pygmo as pg
 
@@ -206,8 +207,9 @@ class optimization:
         else:
             raise ValueError('Optimizer not recognized, invalid input name')
         
-    def optimize(self,numpops:int,numgens:int,seed:int = 42, numneighbours=20, test_CR=1, test_F=0.5, test_eta_m=20, test_realb=0.9)->None:
+    def optimize(self,numpops:int,numgens:int,seed:int = 42, numneighbours:int=20, test_CR:int=1, test_F:int=0.5, test_eta_m:int=20, test_realb:int=0.9)->None:
         self.results = []
+        self.simulation_duration = 0.0
         integrator = lambda: self.integrator_settings
         termination = lambda: self.termination_settings
         bodies = lambda: self.bodies
@@ -219,6 +221,8 @@ class optimization:
                                              bodies,
                                              self.range_per_parameter)
         problem = pg.problem(problem_definition)
+
+        simulation_start_time = time.time()
         
         algo = pg.algorithm(self.optimizer(seed=seed, 
                                             gen=numgens,
@@ -230,6 +234,10 @@ class optimization:
                                            ))
         pop = pg.population(problem,numpops,seed=seed)
         self.results.append(pop)
+
+        simulation_end_time = time.time()
+        self.simulation_duration = simulation_end_time - simulation_start_time
+
         return None
         
     def plot(self)->None:

@@ -207,14 +207,15 @@ class optimization:
         else:
             raise ValueError('Optimizer not recognized, invalid input name')
         
-    def optimize(self,numpops:int,numgens:int,seed:int = 42, numneighbours=20, test_CR=1, test_F=0.5, test_eta_m=20, test_realb=0.9)->None:
+    def optimize(self,numpops:int,numgens:int,seed:int = 42, numneighbours:int=20, test_CR:int=1, test_F:int=0.5, test_eta_m:int=20, test_realb:int=0.9)->None:
         self.results = []
-        self.results_per_generation = []
+        self.results_overall_per_generation = []
+        self.simulation_duration = 0.0
         integrator = lambda: self.integrator_settings
         termination = lambda: self.termination_settings
         bodies = lambda: self.bodies
 
-        simulation_start_epoch = time.time()
+        
 
 
         problem_definition = CapsuleEntryProblem(self.simulation_start_epoch,
@@ -225,8 +226,10 @@ class optimization:
                                              self.range_per_parameter)
         problem = pg.problem(problem_definition)
         
+        simulation_start_epoch = time.time()
+        
         algo = pg.algorithm(self.optimizer(seed=seed, 
-                                            gen=numgens,
+                                            # gen=numgens,
                                             neighbours=numneighbours,
                                             CR = test_CR,
                                             F = test_F,
@@ -234,10 +237,18 @@ class optimization:
                                             realb = test_realb
                                            ))
         pop = pg.population(problem,numpops,seed=seed)
+
+        results_this_generation = []
+
+        for j in range(numgens):
+            pop = algo.evolve(pop)
+            results_this_generation.append(pop.get_f())
+        self.results_overall_per_generation.append(results_this_generation)
+
         self.results.append(pop)
 
         simulation_end_epoch = time.time()
-        simulation_time = simulation_end_epoch - simulation_start_epoch
+        self.simulation_duration = simulation_end_epoch - simulation_start_epoch
 
         return None
         
