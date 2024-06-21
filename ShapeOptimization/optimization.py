@@ -62,6 +62,6 @@ for i in range(num_repeats):
     results_to_store.append([x,y,y_per_gen])
 
 
-filename = 'results/' + optimizer_name + '.dat'
+filename = 'ShapeOptimization/results/' + optimizer_name + '.dat'
 file = open(filename,'wb')
 pickle.dump(results_to_store,file)
