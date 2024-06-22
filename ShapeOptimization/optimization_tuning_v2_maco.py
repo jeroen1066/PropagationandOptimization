@@ -59,8 +59,6 @@ test_for_std_convergence_speed = True
 test_for_eval_stop = True
 test_for_focus = True
 
-
-
 save_directory = 'ShapeOptimization/results/tuning_v2_maco/'
 
 range_per_parameter = [[0,5],
