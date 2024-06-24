@@ -13,7 +13,7 @@ from tudatpy.kernel.math import interpolators
 
 # Problem-specific imports
 import CapsuleEntryUtilities as Util
-import Optimizationutilities_tuning_v1_maco as OptUtil
+import Optimizationutilities_tuning_v2_maco as OptUtil
 
 # General python imports
 import numpy as np
@@ -59,9 +59,7 @@ test_for_std_convergence_speed = True
 test_for_eval_stop = True
 test_for_focus = True
 
-
-
-save_directory = 'ShapeOptimization/results/tuning_v1_maco/'
+save_directory = 'ShapeOptimization/results/tuning_v2_maco/'
 
 range_per_parameter = [[0,5],
                        [2,5],
@@ -104,7 +102,10 @@ if test_for_seed:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
+
 
         filename = save_directory + optimizer_name + '_seed_' + str(test_seed) +'.dat' 
         file = open(filename,'wb')
@@ -134,7 +135,9 @@ if test_for_generations:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_gens_' + str(test_generations) +'.dat' 
         file = open(filename,'wb')
@@ -164,7 +167,9 @@ if test_for_pops:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_pops_' + str(test_pops) +'.dat' 
         file = open(filename,'wb')
@@ -194,7 +199,9 @@ if test_for_kernel:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_kernel_' + str(test_kernel) +'.dat' 
         file = open(filename,'wb')
@@ -224,7 +231,9 @@ if test_for_convergence_speed:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_q_' + str(test_convergence_speed) +'.dat' 
         file = open(filename,'wb')
@@ -254,7 +263,9 @@ if test_for_threshold:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_threshold_' + str(test_threshold) +'.dat' 
         file = open(filename,'wb')
@@ -284,7 +295,9 @@ if test_for_std_convergence_speed:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_n_gen_mark_' + str(test_std_convergence_speed) +'.dat' 
         file = open(filename,'wb')
@@ -314,7 +327,9 @@ if test_for_eval_stop:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_evalstop_' + str(test_eval_stop) +'.dat' 
         file = open(filename,'wb')
@@ -344,7 +359,9 @@ if test_for_focus:
         x = results[0].get_x()
         y = results[0].get_f()
 
-        results_to_store.append([x,y])
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
 
         filename = save_directory + optimizer_name + '_focus_' + str(test_focus) +'.dat' 
         file = open(filename,'wb')
