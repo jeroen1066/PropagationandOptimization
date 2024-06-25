@@ -125,7 +125,7 @@ if test_for_generations:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_gens_' + str(test_generations) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -154,7 +154,7 @@ if test_for_pops:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_pops_' + str(test_pops) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -183,7 +183,7 @@ if test_for_neighbours:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_neighbours_' + str(test_neighbours) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -212,7 +212,7 @@ if test_for_CR:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_CR_' + str(test_CR) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -241,7 +241,7 @@ if test_for_F:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_F_' + str(test_F) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -270,7 +270,7 @@ if test_for_eta_m:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_eta_m_' + str(test_eta_m) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
@@ -299,7 +299,7 @@ if test_for_realb:
         pickle.dump(results_to_store,file)
 
         simulation_duration_tested = opt.simulation_duration
-        filename_ancillary = os.path.join(save_directory, optimizer_name + '_seed_' + str(test_seed) + '_ancillary.txt')
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_realb_' + str(test_realb) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 

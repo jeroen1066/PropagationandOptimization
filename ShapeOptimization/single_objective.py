@@ -27,14 +27,15 @@ spice_interface.load_standard_kernels()
 
 
 #do optimization
-#optimizer names: gaco, de, sade, de1220, gwo, ihs, pso, pso_gen, sea, sga, simulated_annealing, bee_colony, cmaes, xnes
+#optimizer names: gaco (too many), de, sade, de1220, gwo (bad), ihs (not good enough), pso, pso_gen, sea (not good enough), sga, simulated_annealing (too long),
+# bee_colony (too long), cmaes (too long), xnes (too long)
 #seeds needs to be equal size to num_repeats
 
 optimizer_name = 'gaco'
-num_repeats = 2
-num_generations = 10
-num_pops = 63
-seeds = [42,84]
+num_repeats = 4
+num_generations = 25
+num_pops = 45
+seeds = [42, 84, 144, 169]
 
 range_per_parameter = [[0,5],
                        [2,5],
