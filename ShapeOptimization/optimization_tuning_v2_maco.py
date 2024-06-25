@@ -30,7 +30,7 @@ nominal_seed = 42
 nominal_generations = 25
 nominal_populations = 45
 
-nominal_kernel = 63
+nominal_kernel = nominal_populations-20
 nominal_convergence_speed = 1
 nominal_threshold = 1
 nominal_std_convergence_speed = 7
@@ -44,9 +44,9 @@ pops_to_test = [15, 30, 50, 75, 100]
 kernel_to_test = [10, 15, 20, 25, 30]
 convergence_speed_to_test = [0.5, 1, 1.5, 2, 2.5]
 threshold_to_test = [1, 2,  5, 10, 20]
-std_convergence_speed_to_test = [3, 5, 7, 9, 11, 15, 21]
-eval_stop_to_test = [50000, 75000, 100000, 125000, 150000, 200000, 300000]
-focus_to_test = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0]
+std_convergence_speed_to_test = [3, 5, 7, 9, 11]
+eval_stop_to_test = [50000, 75000, 100000, 125000, 150000]
+focus_to_test = [0.1,  0.3,  0.5, 0.7, 1.0]
 
 test_for_seed = True
 test_for_generations = True
