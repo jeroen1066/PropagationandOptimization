@@ -27,8 +27,8 @@ spice_interface.load_standard_kernels()
 
 optimizer_name = 'maco'
 nominal_seed = 42  
-nominal_generations = 50
-nominal_populations = 100
+nominal_generations = 25
+nominal_populations = 45
 
 nominal_kernel = 63
 nominal_convergence_speed = 1
@@ -37,11 +37,11 @@ nominal_std_convergence_speed = 7
 nominal_eval_stop = 100000
 nominal_focus = 0.0
 
-seeds_to_test = [42, 84, 144, 169, 74, 29, 60, 1745, 1480025]
-generations_to_test = [25, 50, 75, 100, 150]
-pops_to_test = [30, 50, 75, 100, 150]
+seeds_to_test = [42, 84, 144, 169, 74]
+generations_to_test = [10, 15, 25, 30, 40, 50]
+pops_to_test = [15, 30, 50, 75, 100]
 
-kernel_to_test = [10, 30, 50, 70, 90]
+kernel_to_test = [10, 15, 20, 25, 30]
 convergence_speed_to_test = [0.5, 1, 1.5, 2, 2.5]
 threshold_to_test = [1, 2,  5, 10, 20]
 std_convergence_speed_to_test = [3, 5, 7, 9, 11, 15, 21]
@@ -95,7 +95,7 @@ if test_for_seed:
                     n_gen_mark=nominal_std_convergence_speed, 
                     evalstop=nominal_eval_stop, 
                     focus=nominal_focus, 
-                    seed=test_seed)
+                    seed=test_seed) 
 
         results = opt.results
         results_to_store = []

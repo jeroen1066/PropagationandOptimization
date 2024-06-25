@@ -48,16 +48,16 @@ std_convergence_speed_to_test = [3, 5, 7, 9, 11, 15, 21]
 eval_stop_to_test = [50000, 75000, 100000, 125000, 150000, 200000, 300000]
 focus_to_test = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0]
 
-test_for_seed = True
-test_for_generations = True
-test_for_pops = True
+test_for_seed = False
+test_for_generations = False
+test_for_pops = False
 
-test_for_kernel = True
-test_for_convergence_speed = True
-test_for_threshold = True
-test_for_std_convergence_speed = True
-test_for_eval_stop = True
-test_for_focus = True
+test_for_kernel = False
+test_for_convergence_speed = False
+test_for_threshold = False
+test_for_std_convergence_speed = False
+test_for_eval_stop = False
+test_for_focus = False
 
 
 

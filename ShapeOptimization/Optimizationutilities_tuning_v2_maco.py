@@ -217,7 +217,7 @@ class optimization:
                     focus:float=0., 
                     seed:int=42)->None:
         self.results = []
-        self.results_overall_per_generation = []
+        self.results_per_generation = []
         self.simulation_duration = 0.0
         integrator = lambda: self.integrator_settings
         termination = lambda: self.termination_settings
@@ -234,7 +234,7 @@ class optimization:
                                              self.range_per_parameter)
         problem = pg.problem(problem_definition)
         
-        simulation_start_epoch = time.time()
+        simulation_start_time = time.time()
         
         algo = pg.algorithm(self.optimizer(seed=seed, 
                                             gen=numgens,
@@ -247,17 +247,17 @@ class optimization:
        
         algo.set_verbosity(1)
         pop = pg.population(problem,numpops,seed=seed)
-        results_this_generation = []
+        results_this_repeat = []
 
         for j in range(numgens):
             pop = algo.evolve(pop)
-            results_this_generation.append(pop.get_f())
-        self.results_overall_per_generation.append(results_this_generation)
+            results_this_repeat.append(pop.get_f())
+        self.results_per_generation.append(results_this_repeat)
 
         self.results.append(pop)
 
-        simulation_end_epoch = time.time()
-        self.simulation_duration = simulation_end_epoch - simulation_start_epoch
+        simulation_end_time = time.time()
+        self.simulation_duration = simulation_end_time - simulation_start_time
 
         return None
         
