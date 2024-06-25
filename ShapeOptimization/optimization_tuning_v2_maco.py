@@ -45,7 +45,7 @@ kernel_to_test = [10, 15, 20, 25, 30]
 convergence_speed_to_test = [0.5, 1, 1.5, 2, 2.5]
 threshold_to_test = [1, 2,  5, 10, 20]
 std_convergence_speed_to_test = [3, 5, 7, 9, 11]
-eval_stop_to_test = [50000, 75000, 100000, 125000, 150000]
+eval_stop_to_test = [50, 75, 100, 125, 150]
 focus_to_test = [0.1,  0.3,  0.5, 0.7, 1.0]
 
 test_for_seed = True

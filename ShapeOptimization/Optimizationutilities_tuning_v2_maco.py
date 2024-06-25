@@ -237,7 +237,7 @@ class optimization:
         simulation_start_time = time.time()
         
         algo = pg.algorithm(self.optimizer(seed=seed, 
-                                            gen=numgens,
+                                            # gen=numgens,
                                             ker=ker, 
                                             q=q, 
                                             threshold=threshold, 
