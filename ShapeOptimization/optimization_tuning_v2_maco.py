@@ -39,7 +39,7 @@ nominal_focus = 0.0
 
 seeds_to_test = [42, 84, 144, 169, 74]
 generations_to_test = [10, 15, 25, 30, 40, 50]
-pops_to_test = [15, 30, 50, 75, 100]
+pops_to_test = [30, 50, 75, 100, 125]
 
 kernel_to_test = [10, 15, 20, 25, 30]
 convergence_speed_to_test = [0.5, 1, 1.5, 2, 2.5]
@@ -48,13 +48,13 @@ std_convergence_speed_to_test = [3, 5, 7, 9, 11]
 eval_stop_to_test = [50, 75, 100, 125, 150]
 focus_to_test = [0.1,  0.3,  0.5, 0.7, 1.0]
 
-test_for_seed = True
-test_for_generations = True
-test_for_pops = True
+test_for_seed = False
+test_for_generations = False
+test_for_pops = False
 
-test_for_kernel = True
-test_for_convergence_speed = True
-test_for_threshold = True
+test_for_kernel = False
+test_for_convergence_speed = False
+test_for_threshold = False
 test_for_std_convergence_speed = True
 test_for_eval_stop = True
 test_for_focus = True
