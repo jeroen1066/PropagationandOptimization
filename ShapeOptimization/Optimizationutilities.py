@@ -146,7 +146,7 @@ class CapsuleEntryProblem:
             fitness *= total_heat_load/self.constraints[1]*100
 
         
-        return fitness
+        return fitness     #, max_g_load, max_ld, mass_capsule
     
 class optimization:
     def __init__(self,range_per_parameter:list[list[float]],optimizer_name = str)->None:
@@ -255,3 +255,18 @@ class optimization:
         #todo, some time at some point
 
         return None
+'''
+    def getresults(self,parameters):
+        integrator = lambda: self.integrator_settings
+        termination = lambda: self.termination_settings
+        bodies = lambda: self.bodies
+        problem_definition = CapsuleEntryProblem(self.simulation_start_epoch,
+                                                 self.initial_state,
+                                                 integrator,
+                                                 termination,
+                                                 bodies,
+                                                 self.range_per_parameter)
+
+        fitness, max_g, ld, mass = problem_definition.fitness(parameters)
+        return max_g, ld, mass
+'''
