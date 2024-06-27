@@ -59,7 +59,7 @@ for i in range(num_repeats):
     y = results[i].get_f()
     y_per_gen = results_per_generation[i]
 
-    results_to_store.append([x,y,y_per_gen])
+    results_to_store.append([x,y,y_per_gen]) 
 
 
 filename = 'ShapeOptimization/results/' + optimizer_name + '.dat'
