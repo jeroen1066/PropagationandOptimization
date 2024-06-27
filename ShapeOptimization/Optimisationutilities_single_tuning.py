@@ -19,6 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import pickle
+import time as tm
 
 import pygmo as pg
 
@@ -228,7 +229,7 @@ class optimization:
         else:
             raise ValueError('Optimizer not recognized, invalid input name')
 
-    def optimize(self, numpops: int, numgens: int, numrepeats: int, seeds: list[float]) -> None:
+    def optimize(self, numpops: int, numgens: int, numrepeats: int, seeds: list[float], start_time: float) -> None:
         self.results = []
         self.results_per_generation = []
         integrator = lambda: self.integrator_settings
