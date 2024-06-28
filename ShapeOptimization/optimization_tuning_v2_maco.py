@@ -38,14 +38,14 @@ nominal_eval_stop = 100000
 nominal_focus = 0.0
 
 seeds_to_test = [42, 84, 144, 169, 74]
-generations_to_test = [10, 15, 25, 30, 40, 50]
+generations_to_test = [10, 20, 30, 40, 50]
 pops_to_test = [30, 50, 75, 100, 125]
 
 kernel_to_test = [10, 15, 20, 25, 30]
 convergence_speed_to_test = [0.5, 1, 1.5, 2, 2.5]
 threshold_to_test = [1, 2,  5, 10, 20]
 std_convergence_speed_to_test = [3, 5, 7, 9, 11]
-eval_stop_to_test = [50, 75, 100, 125, 150]
+eval_stop_to_test = [10, 15, 20, 25, 30]
 focus_to_test = [0.1,  0.3,  0.5, 0.7, 1.0]
 
 test_for_seed = False
@@ -55,9 +55,9 @@ test_for_pops = False
 test_for_kernel = False
 test_for_convergence_speed = False
 test_for_threshold = False
-test_for_std_convergence_speed = True
-test_for_eval_stop = True
-test_for_focus = True
+test_for_std_convergence_speed = False
+test_for_eval_stop = False
+test_for_focus = False
 
 save_directory = 'ShapeOptimization/results/tuning_v2_maco/'
 
@@ -121,7 +121,7 @@ if test_for_generations:
         print('Testing generations: ', test_generations)
         opt = OptUtil.optimization(bounds, optimizer_name)
         opt.optimize(numpops = nominal_populations,
-                    numgens = nominal_generations,
+                    numgens = test_generations,
                     ker=nominal_kernel, 
                     q=nominal_convergence_speed, 
                     threshold=nominal_threshold, 
@@ -371,5 +371,52 @@ if test_for_focus:
         filename_ancillary = os.path.join(save_directory, optimizer_name + '_focus_' + str(test_focus) + '_ancillary.txt')
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
+
+tuned_seed = 169
+tuned_generations = 30
+tuned_population = 75
+tuned_kernel = 45
+tuned_convengence_speed = nominal_convergence_speed
+tuned_threshold = nominal_threshold
+tuned_std_convergence_speed = 9
+tuned_eval_stop = nominal_eval_stop
+tuned_focus = nominal_focus
+
+test_tuned = True
+
+if test_tuned:
+    for test_seed in seeds_to_test:
+        print('Testing seed: ', test_seed)
+        opt = OptUtil.optimization(bounds, optimizer_name)
+        opt.optimize(numpops = tuned_population,
+                    numgens = tuned_generations,
+                    ker=tuned_kernel, 
+                    q=tuned_convengence_speed, 
+                    threshold=tuned_threshold, 
+                    n_gen_mark=tuned_std_convergence_speed, 
+                    evalstop=tuned_eval_stop, 
+                    focus=tuned_focus, 
+                    seed=test_seed) 
+
+        results = opt.results
+        results_to_store = []
+        x = results[0].get_x()
+        y = results[0].get_f()
+
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
+
+
+        filename = save_directory + optimizer_name + '_tuned_seed_' + str(test_seed) +'.dat' 
+        file = open(filename,'wb')
+        pickle.dump(results_to_store,file)
+
+        simulation_duration_tested = opt.simulation_duration
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_tuned_seed_' + str(test_seed) + '_ancillary.txt')
+        with open(filename_ancillary, 'w') as file:
+            file.write(str(simulation_duration_tested))
+
+
 
 print('All tests completed')
