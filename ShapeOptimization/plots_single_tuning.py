@@ -6,10 +6,10 @@ import math
 
 fig, axs = plt.subplots(1,2)
 
-labels = ['optimisation']
+labels = [2,17,21,42,66,84,144,169]
 
 optimizer_name = 'sga'
-data_file = 'results/' + optimizer_name + '_single_optimum.dat'
+data_file = 'results/' + optimizer_name + '_single_tuning_seeds.dat'
 file = open(data_file,'rb')
 data = pickle.load(file)
 file.close()
@@ -17,16 +17,12 @@ for j in range(len(labels)):
     results = data[j]
     x = results[0]
     y = results[1]
-    for i in range(len(x)):
-        print(x[i])
-    print('optimum')
-    print(x[y.tolist().index(min(y))])
     axs[0].scatter(y,np.arange(len(y)), label=str(labels[j]))
 axs[0].grid()
 axs[0].set_xlabel('mass fitness')
 axs[0].set_ylabel('population')
 axs[0].set_ylim([0, 70])
-axs[0].set_xlim([0, 8])
+axs[0].set_xlim([0, 3])
 axs[0].legend()
 
 
@@ -55,6 +51,7 @@ for j in range(len(labels)):
 axs[1].grid()
 axs[1].set_xlabel('evolutions done')
 axs[1].set_ylabel('Average fitness')
+axs[1].set_yscale('log')
 axs[1].legend()
 plt.tight_layout()
 plt.show()
