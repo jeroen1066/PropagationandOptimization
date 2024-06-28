@@ -28,7 +28,7 @@ parameternames = ['Nose radius', 'Middle radius', 'Rear length', 'Rear angle', '
 # PARAMETERS ##############################################################
 ###########################################################################
 
-numsimulations = 50
+numsimulations = 100
 numparameters = 7
 
 n = 0.2 #0.2 for turbulent boundary, 0.5 for laminar boundary
@@ -48,7 +48,6 @@ simulation_start_epoch = 0.0  # s
 maximum_duration = constants.JULIAN_DAY  # s
 termination_altitude = 25.0E3  # m
 # Set vehicle properties
-capsule_density = 250.0  # kg m-3
 
 
 bodies_to_create = ['Earth', 'Moon', 'Sun']
@@ -105,24 +104,17 @@ initial_state = Util.get_initial_state(simulation_start_epoch,bodies)
 # MONTE CARLO ANALYSIS ####################################################
 ###########################################################################
 
-default_shape_parameters = [7.6983117481,
-                    2.0923385955,
-                    1.7186406196,
-                    -0.255984141,
-                    0.1158838553,
-                    0.3203083369]
 
-selected_shape_parameters = []#todo
+
+selected_shape_parameters = [4.96696412e+00,  
+                             3.75143635e+00,  
+                             2.98836607e+00, 
+                             -1.55543028e-03,
+                             4.33821906e+00,  
+                             1.62819329e-01,  
+                             2.28097245e+02]#todo
 
 np.random.seed(42)
-range_per_parameter = [[0,5],
-                       [2,5],
-                       [0,3],
-                        [-np.pi/2,0.],
-                        [2.5,5.5],
-                        [-0.25,0.5],
-                        [50,400]
-                       ]
 
 new_range_per_parameter = [[-0.1,0.1],
                            [-0.1,0.1],
@@ -133,6 +125,8 @@ new_range_per_parameter = [[-0.1,0.1],
                            [-10,10]
                            ]
 
+print(selected_shape_parameters[6])
+
 inputs = np.empty((numparameters,numsimulations),dtype=object)
 #time_histories = np.empty((numparameters,numsimulations),dtype=object)
 objectives = np.empty((numparameters,numsimulations),dtype=object)
@@ -140,16 +134,17 @@ constraints = np.empty((numparameters,numsimulations),dtype=object)
 
 for i in range (numparameters):
 
-    shape_variation = np.random.uniform(range_per_parameter[i][0],range_per_parameter[i][1],numsimulations)
+    shape_variation = np.random.uniform(new_range_per_parameter[i][0],new_range_per_parameter[i][1],numsimulations)
 
     for j in range (numsimulations):
         if i != 6:
-            shape_parameters = default_shape_parameters[:]
-            shape_parameters[i] = default_shape_parameters[i] + shape_variation[j]
+            shape_parameters = selected_shape_parameters[:6]
+            shape_parameters[i] = selected_shape_parameters[i] + shape_variation[j]
+            capsule_density = selected_shape_parameters[6]
 
         else:
-            shape_parameters = default_shape_parameters[:]
-            capsule_density = default_shape_parameters[i] + shape_variation[j]
+            shape_parameters = selected_shape_parameters[:6]
+            capsule_density = selected_shape_parameters[i] + shape_variation[j]
 
 
         # Create shape model
@@ -287,7 +282,7 @@ for i in range(numparameters):
     axs[2].set_ylabel('Max G-load')
     axs[2].legend()
     axs[2].grid()
-    fig.savefig('Parameter_' + parameternames[i] + '_against objectives_single' + '.png')
+    fig.savefig('results/Parameter_' + parameternames[i] + '_against objectives_single' + '.png')
     plt.show()
 
     #plot constraints against inputs:
@@ -318,7 +313,7 @@ for i in range(numparameters):
     #axs[3].set_xlabel('Parameter ' + parameternames[i])
     #axs[3].set_ylabel('Succesfull')
     #axs[3].grid()
-    fig.savefig('Parameter_' + parameternames[i] + ' against_constraints_single' + '.png')
+    fig.savefig('results/Parameter_' + parameternames[i] + ' against_constraints_single' + '.png')
     plt.show()
 
 
