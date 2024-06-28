@@ -589,7 +589,7 @@ if plot_simulation_speed:
     focus_arr = np.zeros(len(focus_to_test))
 
     include_seeds = True
-    include_generations = False
+    include_generations = True
     include_pops = True
     include_kernel = True
     include_convergence_speed = True

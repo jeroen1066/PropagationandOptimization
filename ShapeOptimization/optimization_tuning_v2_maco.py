@@ -49,7 +49,7 @@ eval_stop_to_test = [10, 15, 20, 25, 30]
 focus_to_test = [0.1,  0.3,  0.5, 0.7, 1.0]
 
 test_for_seed = False
-test_for_generations = True
+test_for_generations = False
 test_for_pops = False
 
 test_for_kernel = False
