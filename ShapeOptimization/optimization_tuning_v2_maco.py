@@ -372,4 +372,50 @@ if test_for_focus:
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
+tuned_generations = 25
+tuned_population = 50
+tuned_kernel = 30
+tuned_convengence_speed = 1
+tuned_threshold = nominal_threshold
+tuned_std_convergence_speed = 7
+tuned_eval_stop = nominal_eval_stop
+tuned_focus = nominal_focus
+
+test_tuned = True
+
+if test_tuned:
+    for test_seed in seeds_to_test:
+        print('Testing seed: ', test_seed)
+        opt = OptUtil.optimization(bounds, optimizer_name)
+        opt.optimize(numpops = tuned_population,
+                    numgens = tuned_generations,
+                    ker=tuned_kernel, 
+                    q=tuned_convengence_speed, 
+                    threshold=tuned_threshold, 
+                    n_gen_mark=tuned_std_convergence_speed, 
+                    evalstop=tuned_eval_stop, 
+                    focus=tuned_focus, 
+                    seed=test_seed) 
+
+        results = opt.results
+        results_to_store = []
+        x = results[0].get_x()
+        y = results[0].get_f()
+
+        results_per_generation = opt.results_per_generation
+        y_per_gen = results_per_generation[0]
+        results_to_store.append([x,y,y_per_gen])
+
+
+        filename = save_directory + optimizer_name + '_tuned_seed_' + str(test_seed) +'.dat' 
+        file = open(filename,'wb')
+        pickle.dump(results_to_store,file)
+
+        simulation_duration_tested = opt.simulation_duration
+        filename_ancillary = os.path.join(save_directory, optimizer_name + '_tuned_seed_' + str(test_seed) + '_ancillary.txt')
+        with open(filename_ancillary, 'w') as file:
+            file.write(str(simulation_duration_tested))
+
+
+
 print('All tests completed')
