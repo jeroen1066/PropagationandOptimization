@@ -38,7 +38,7 @@ nominal_eval_stop = 100000
 nominal_focus = 0.0
 
 seeds_to_test = [42, 84, 144, 169, 74]
-generations_to_test = [10, 15, 25, 30, 40, 50]
+generations_to_test = [10, 20, 30, 40, 50]
 pops_to_test = [30, 50, 75, 100, 125]
 
 kernel_to_test = [10, 15, 20, 25, 30]
@@ -56,7 +56,7 @@ test_for_kernel = False
 test_for_convergence_speed = False
 test_for_threshold = False
 test_for_std_convergence_speed = False
-test_for_eval_stop = True
+test_for_eval_stop = False
 test_for_focus = False
 
 save_directory = 'ShapeOptimization/results/tuning_v2_maco/'
@@ -372,12 +372,13 @@ if test_for_focus:
         with open(filename_ancillary, 'w') as file:
             file.write(str(simulation_duration_tested))
 
-tuned_generations = 25
-tuned_population = 50
-tuned_kernel = 30
-tuned_convengence_speed = 1
+tuned_seed = 169
+tuned_generations = 30
+tuned_population = 75
+tuned_kernel = 45
+tuned_convengence_speed = nominal_convergence_speed
 tuned_threshold = nominal_threshold
-tuned_std_convergence_speed = 7
+tuned_std_convergence_speed = 9
 tuned_eval_stop = nominal_eval_stop
 tuned_focus = nominal_focus
 
