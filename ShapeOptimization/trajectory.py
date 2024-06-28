@@ -25,8 +25,11 @@ import pygmo as pg
 
 import matplotlib.pyplot as plt
 
-inputs = np.asarray([[4.967, 3.751, 2.988, -1.555, 4.338, 0.163, 228.1],
-                     [3.8686343422, 2.6697460404, 0.6877576649, -0.7652400717, 0.3522259173, 0.2548030601, 250.0]])
+data_file = 'results/tuning_v2_maco/maco_tuned_seed_169.dat'
+file = open(data_file,'rb')
+data = pickle.load(file)[0]
+file.close()
+inputs = data[0]
 
 spice_interface.load_standard_kernels()
 
@@ -84,6 +87,8 @@ initial_state = Util.get_initial_state(simulation_start_epoch,bodies)
 
 fig, axs = plt.subplots(2,2)
 
+bounce_fitnesses = []
+counter = 0
 for i in range(len(inputs)):
     shape_parameters = inputs[i][:6]
     density = inputs[i][6]
@@ -106,41 +111,46 @@ for i in range(len(inputs)):
     dependent_variable_history = dynamics_simulator.dependent_variable_history
     dependent_varibable_array = result2array(dependent_variable_history)
     times = np.array(list(state_history.keys()))
-    g_load = dependent_varibable_array[:, 1] / 9.81
-    density = dependent_varibable_array[:, 2]
-    airspeed = dependent_varibable_array[:, 3]
-    altitude = dependent_varibable_array[:, 4]
-    mach = dependent_varibable_array[:, 5]
+    if data[1][i][0] <= 8:
+        if data[1][i][1] <= 8:
+            if data[1][i][2] <= 8:
+                counter += 1
+                g_load = dependent_varibable_array[:, 1] / 9.81
+                density = dependent_varibable_array[:, 2]
+                airspeed = dependent_varibable_array[:, 3]
+                altitude = dependent_varibable_array[:, 4]
+                mach = dependent_varibable_array[:, 5]
 
-    n = 0.2
-    heatflux = (density ** (1 - n) * airspeed ** 3) / (shape_parameters[0] ** n)
+                n = 0.2
+                heatflux = (density ** (1 - n) * airspeed ** 3) / (shape_parameters[0] ** n)
 
-    axs[(0, 0)].plot(times, altitude, label='run ' + str(i + 1))
-    axs[(0, 0)].grid()
-    axs[(0, 0)].set_xlabel('time [s]')
-    axs[(0, 0)].set_ylabel('altitude [m]')
-    axs[(0, 0)].legend()
+                axs[(0, 0)].plot(times, altitude, label='run ' + str(i + 1))
+                axs[(0, 0)].grid()
+                axs[(0, 0)].set_xlabel('time [s]')
+                axs[(0, 0)].set_ylabel('altitude [m]')
+                axs[(0, 0)].legend()
 
-    axs[(1, 0)].plot(times, g_load, label='run ' + str(i + 1))
-    axs[(1, 0)].grid()
-    axs[(1, 0)].set_xlabel('time [s]')
-    axs[(1, 0)].set_ylabel('g-load [g]')
-    axs[(1, 0)].legend()
+                axs[(1, 0)].plot(times, g_load, label='run ' + str(i + 1))
+                axs[(1, 0)].grid()
+                axs[(1, 0)].set_xlabel('time [s]')
+                axs[(1, 0)].set_ylabel('g-load [g]')
+                axs[(1, 0)].legend()
 
-    axs[(0, 1)].plot(times, mach, label='run ' + str(i + 1))
-    axs[(0, 1)].grid()
-    axs[(0, 1)].set_xlabel('time [s]')
-    axs[(0, 1)].set_ylabel('Mach number [m]')
-    axs[(0, 1)].legend()
+                axs[(0, 1)].plot(times, mach, label='run ' + str(i + 1))
+                axs[(0, 1)].grid()
+                axs[(0, 1)].set_xlabel('time [s]')
+                axs[(0, 1)].set_ylabel('Mach number [m]')
+                axs[(0, 1)].legend()
 
-    axs[(1, 1)].plot(times, heatflux, label='run ' + str(i + 1))
-    axs[(1, 1)].grid()
-    axs[(1, 1)].set_xlabel('time [s]')
-    axs[(1, 1)].set_ylabel('heat flux [m]')
-    axs[(1, 1)].legend()
+                axs[(1, 1)].plot(times, heatflux, label='run ' + str(i + 1))
+                axs[(1, 1)].grid()
+                axs[(1, 1)].set_xlabel('time [s]')
+                axs[(1, 1)].set_ylabel('heat flux [m]')
+                axs[(1, 1)].legend()
 
 axs[(0,0)].grid()
 axs[(1,0)].grid()
 axs[(0,1)].grid()
 axs[(1,1)].grid()
 plt.show()
+print(counter)
