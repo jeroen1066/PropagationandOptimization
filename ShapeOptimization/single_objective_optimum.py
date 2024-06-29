@@ -31,6 +31,7 @@ for j in range(1):
     x = results[0]
     y = results[1]
     inputs = x[y.tolist().index(min(y))]
+    print(inputs)
 
 bounds = [[0,2,0,-np.pi/2,2.5,0.0,50],[5,5,3,0,5.5,0.5,400]]
 optimizer_name = 'moead_gen'
